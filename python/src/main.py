@@ -13,11 +13,16 @@ tree = bot.tree
 db = pw.SqliteDatabase("database.db")
 db.connect()
 
+class Currencies(pw.Model):
+    curr = pw.CharField(primary_key=True)
+    default = pw.IntegerField()
+
+    class Meta:
+        database = db
+
 class Wallet(pw.Model):
     discord_id = pw.CharField(primary_key=True)
-    curr = pw.CharField()
-    amount = pw.IntegerField()
-
+    
     class Meta:
         database = db
 
@@ -31,7 +36,7 @@ class Trades(pw.Model):
     class Meta:
         database = db
 
-db.create_tables([Wallet, Trades])
+db.create_tables([Wallet, Trades, Currencies])
 
 @bot.event
 async def on_ready():
@@ -42,13 +47,19 @@ async def on_ready():
 async def ping(ctx):
     await ctx.send("Pong!")
 
-@bot.command(name="balance")
+@tree.command(name="balance")
 async def balance(ctx):
+    await ctx.response.send_message("Getting balance...")
     try:
-        user = Wallet.get(discord_id=str(ctx.author.id))
+        user : Wallet = Wallet.get(discord_id=str(ctx.user.id))
     except:
-        user = Wallet.create(discord_id=str(ctx.author.id), curr="USD", amount=0)
-    await ctx.send(f"Your balance is {user.amount} {user.curr}")
+        user = Wallet.create(discord_id=str(ctx.user.id), curr="USD", amount=0)
+        user : Wallet = Wallet.get(discord_id=str(ctx.user.id))
+    
+    # Get the current structure of the Wallet table from the database
+    cursor = db.execute_sql(f"PRAGMA table_info({user._meta.table_name})")
+    columns = [row[1] for row in cursor.fetchall()]
+    
 
 class confirmation(discord.ui.View):
     def __init__(self, ctx, user, curr, amount):
@@ -92,14 +103,22 @@ async def trade(interaction : discord.Interaction, user: discord.User, curr: str
         return
     
     view = confirmation(interaction, user, curr, amount)
-    await interaction.response.send_message(f"Are you sure you want to trade {amount} {curr} to {user.name}?", view=view)
+    await interaction.response.send_message(f"Are you sure you want to trade {amount} {curr} to {user.name}?", view=view, ephemeral=True)
 
 @bot.command(name="add_amount")
 async def add_amount(ctx, user_: discord.User, amount: int, curr: str):
     user = Wallet.get(discord_id=str(user_.id))
-    user.amount += amount
-    user.curr = curr
-    user.save()
+    db.execute_sql(f"UPDATE wallet SET {curr} = {curr} + {amount} WHERE discord_id = {user_.id}")
     await ctx.send(f"Added {amount} to {user_.name}'s balance")
+
+@tree.command(name="add_currency")
+async def add_currency(ctx, curr: str, default: int = 1000):
+    Currencies.create(curr=curr, default=default)
+    await ctx.response.send_message(f"Added {curr} to the database")
+
+@tree.command(name="remove_currency")
+async def remove_currency(ctx, curr: str):
+    Currencies.delete().where(Currencies.curr == curr).execute()
+    await ctx.response.send_message(f"Removed {curr} from the database")
 
 bot.run(getenv("DISCORD_TOKEN"))
