@@ -21,6 +21,7 @@ class BaseModel(pw.Model):
 class Server_configs(BaseModel):
     server_id = pw.IntegerField(primary_key=True)
     whitelist = pw.TextField() #JSON
+    channels = pw.TextField() #JSON
 
 class Currencies(BaseModel):
     server_id = pw.IntegerField(primary_key=True)
@@ -39,7 +40,26 @@ class Trades(BaseModel):
     currency_name = pw.IntegerField()
     amount = pw.IntegerField()
 
-db.create_tables([Currencies, Profiles, Trades, Server_configs])
+class Stasis(BaseModel):
+    stasis_id = pw.AutoField(primary_key=True)
+    user_id_sender = pw.IntegerField()
+    user_id_receiver = pw.IntegerField()
+    currency_name = pw.IntegerField()
+    amount = pw.IntegerField()
+    type = pw.IntegerField() # 0 = trade,
+    completed = pw.BooleanField()
+
+class Mail_Tickets(BaseModel):
+    ticket_id = pw.AutoField(primary_key=True)
+    user_id = pw.IntegerField(unique=True)
+    channel_id = pw.IntegerField()
+
+class Verification_Gates(BaseModel):
+    gate_id = pw.AutoField(primary_key=True)
+    stage = pw.IntegerField()
+    stasis = pw.ForeignKeyField(Stasis, backref="verification_gate")
+
+db.create_tables([Currencies, Profiles, Trades, Server_configs, Stasis, Mail_Tickets, Verification_Gates])
 
 @bot.event
 async def on_ready():
@@ -71,15 +91,45 @@ async def setup(interaction: discord.Interaction):
         
         async def on_submit(self, interaction: discord.Interaction):
             
+            # Set Up Channels
+            
+            class channel_setup_view(discord.ui.View):
+                def __init__(self):
+                    super().__init__(timeout=None)
+                
+                @discord.ui.button(label="Create Channels", style=discord.ButtonStyle.green, custom_id="create_channels")
+                async def create_channels(self, interaction: discord.Interaction, button: discord.ui.Button):
+                    # Create Category
+                    try:
+                        category = await interaction.guild.create_category("Syndra", overwrites=None, reason="Syndra Setup")
+                    except Exception as e:
+                        await interaction.channel.send(f"Something Went Wrong! /nError: ```{e}```", ephemeral=True)
+                        print("Error: ", e)
+                        return
+                    # Create Channels
+                    try:
+                        await interaction.guild.create_text_channel("Syndra-Chat", category=category, overwrites=None, reason="Syndra Setup")
+                        await interaction.guild.create_text_channel("Syndra-Commands", category=category, overwrites=None, reason="Syndra Setup")
+                        await interaction.guild.create_text_channel("Syndra-Trade", category=category, overwrites=None, reason="Syndra Setup")
+                    except Exception as e:
+                        await interaction.channel.send(f"Something Went Wrong! /nError: ```{e}```", ephemeral=True)
+                        print("Error: ", e)
+                        return
+                    # Send Success Message
+                    await interaction.channel.send("Channels Created!")
+                    return
+
+            await interaction.channel.send("Syndra needs a couple channels to work well!\n> --Syndra Catergory-- \n> Syndra-Chat \n> Syndra-Commands \n> Syndra-Trade\n\nThe Above commands must be included! If you want we can create that all for you! Or you can use a command to set everything up yourself!  \n\n```if you want to set things up yourself, use the /setup_channels_manual command!\nHowever if you want automatic setup, please click the button below.```\n\nIf you need assistance in manual setup, please use the /setup_channels_manual_help", ephemeral=True)
+
             # 5.2 getting whitelist
             class whitelist_setup_view(discord.ui.View):
                 def __init__(self):
                     super().__init__(timeout=None)
                 
-
                 options = [discord.SelectOption(label="/bal", value="bal")
                            ,discord.SelectOption(label="/trade", value="trade")
                            ,discord.SelectOption(label="/adopt", value="adopt")]
+                
                 @discord.ui.select(placeholder="Select a commands to whitelist", min_values=1, max_values=len(options), options=options)
                 async def whitelist(self, interaction: discord.Interaction, select: discord.ui.Select):
                     # Create Server Config
@@ -89,19 +139,18 @@ async def setup(interaction: discord.Interaction):
                         await interaction.channel.send(f"Something Went Wrong! /nError: ```{e}```", ephemeral=True)
                         print("Error: ", e)
                         return
+                    # Create currency without role allowance config
+                    try:
+                        Currencies.create(server_id=interaction.guild.id, currency_name=self.currency_name.value, role_allowance=json.dumps({"none" : "none"}, indent=4))
+                    except Exception as e:
+                        await interaction.channel.send(f"Something Went Wrong! /nError: ```{e}```")
+
+                    # Ask user to set up role allowance
+                    await interaction.channel.send("you need to set up up your role allowance to complete the setup, please use the /role_allowance_help command to set it up.")
                     
                     return
             
             await interaction.response.send_message("Select the commands you want to whitelist", view=whitelist_setup_view(), ephemeral=True)
-
-            # Create currency without role allowance config
-            try:
-                Currencies.create(server_id=interaction.guild.id, currency_name=self.currency_name.value, role_allowance=json.dumps({"none" : "none"}, indent=4))
-            except Exception as e:
-                await interaction.channel.send(f"Something Went Wrong! /nError: ```{e}```")
-
-            # Ask user to set up role allowance
-            await interaction.channel.send("you need to set up up your role allowance to complete the setup, please use the /role_allowance_help command to set it up.")
             
             # DEPRECATED 
             # Could not handle more then 25 roles in the dropdown menu, see [discord.SelectOption(label=role.name, value=str(role.id)) for role in roles] for more info
@@ -170,6 +219,31 @@ async def setup(interaction: discord.Interaction):
             return
     
     await interaction.response.send_modal(currency_setup_modal())
+
+@tree.command(name="setup_channels_manual_help")
+async def setup_channels_manual_help(interaction: discord.Interaction):
+    await interaction.response.send_message("When using the /setup_channels_manual command you will see four boxes. Please select the channel that you want to set as each in the following order. 1. Catergory, 2. Syndra-chat channel, 3. syndra-commands, 4. syndra-trade. If you mess up the order you will need to redo the command.", ephemeral=True)
+
+@tree.command(name="setup_channels_manual")
+async def setup_channels_manual(interaction: discord.Interaction, category: discord.CategoryChannel, chat: discord.TextChannel, commands: discord.TextChannel, trade: discord.TextChannel):
+    # Create Category
+    try:
+        category = await interaction.guild.create_category(category.name, overwrites=None, reason="Syndra Setup")
+    except Exception as e:
+        await interaction.channel.send(f"Something Went Wrong! /nError: ```{e}```", ephemeral=True)
+        print("Error: ", e)
+        return
+    # Create Channels
+    try:
+        await interaction.guild.create_text_channel(chat.name, category=category, overwrites=None, reason="Syndra Setup")
+        await interaction.guild.create_text_channel(commands.name, category=category, overwrites=None, reason="Syndra Setup")
+        await interaction.guild.create_text_channel(trade.name, category=category, overwrites=None, reason="Syndra Setup")
+    except Exception as e:
+        await interaction.channel.send(f"Something Went Wrong! /nError: ```{e}```", ephemeral=True)
+        print("Error: ", e)
+        return
+    # Send Success Message
+    await interaction.channel.send("Channels Stored!")
 
 @tree.command(name="role_allowance_help")
 async def role_allowance_help(interaction: discord.Interaction):
@@ -363,7 +437,6 @@ async def bal(interaction: discord.Interaction, all: bool = False):
         Profiles.create(server_id=interaction.guild.id, user_id=interaction.user.id, amount=0)
         await interaction.response.send_message("You do not have a profile, A profile is being created, try this command again!", ephemeral=True)
     
-
 class confirmation(discord.ui.View):
     """
     Confirmation View
@@ -414,6 +487,49 @@ async def trade(interaction: discord.Interaction, receiver: discord.User, curren
                     Profiles.create(server_id=interaction.guild.id, user_id=receiver.id, amount=Currencies.get_by_id(interaction.guild.id).currency_default)
                     receiver_profile = Profiles.select().where(Profiles.user_id == receiver.id).where(Profiles.server_id == interaction.guild.id).get()
                     return
+
+                # Create Stasis                 
+                Stasis.create(user_id_sender=interaction.user.id, user_id_receiver=receiver.id, currency_name=currency_name, amount=amount, type=0, completed=False)
+
+                # Create Gate
+                gate_id = Verification_Gates.create(stage=0, stasis=Stasis.select().where(Stasis.user_id_sender == interaction.user.id).where(Stasis.user_id_receiver == receiver.id).where(Stasis.currency_name == currency_name).where(Stasis.amount == amount).where(Stasis.type == 0).where(Stasis.completed == False).get())
+
+                # Remove Funds from Sender
+                sender_profile.amount -= amount
+                sender_profile.save()
+
+                # Grab Trade notification channel
+                trade_channel = discord.utils.get(interaction.guild.channels, id=int(json.loads(Server_configs.get_by_id(interaction.guild.id).channels)["trade"]))
+
+                # Notify Receiver
+                await trade_channel.send(f"{interaction.user.mention} wants to trade {amount} {currency_name} to you", delete_after=1)
+
+                # DEPRECATED
+                '''# Trade Logic for Receiver
+                async def trade_logic_receiver(interaction: discord.Interaction, receiver: discord.User, currency_name: str, amount: int):
+                    # Grab Sender Profile
+                    sender_profile = Profiles.select().where(Profiles.user_id == interaction.user.id).where(Profiles.server_id == interaction.guild.id).get()
+                    # Grab Receiver Profile
+                    try:
+                        receiver_profile = Profiles.select().where(Profiles.user_id == receiver.id).where(Profiles.server_id == interaction.guild.id).get()
+                    except Exception as e:
+                        Profiles.create(server_id=interaction.guild.id, user_id=receiver.id, amount=Currencies.get_by_id(interaction.guild.id).currency_default)
+                        receiver_profile = Profiles.select().where(Profiles.user_id == receiver.id).where(Profiles.server_id == interaction.guild.id).get()
+                        return
+                    # Update Sender Profile
+                    sender_profile.amount -= amount
+                    sender_profile.save()
+                    # Update Receiver Profile
+                    receiver_profile.amount += amount
+                    receiver_profile.save()
+                    # Create Trade
+                    Trades.create(user_id_sender=interaction.user.id, user_id_receiver=receiver.id, currency_name=currency_name, amount=amount)
+                    return
+                
+                # Send Confirmation with trade logic
+                await interaction.channel.send(f"Are you sure you want to trade {amount} {currency_name} to {receiver.mention}?", view=confirmation(trade_logic_receiver, interaction=interaction, receiver=receiver, currency_name=currency_name, amount=amount))
+
+                # DEPRECATED
                 # Update Sender Profile
                 sender_profile.amount -= amount
                 sender_profile.save()
@@ -421,10 +537,100 @@ async def trade(interaction: discord.Interaction, receiver: discord.User, curren
                 receiver_profile.amount += amount
                 receiver_profile.save()
                 # Create Trade
-                Trades.create(user_id_sender=interaction.user.id, user_id_receiver=receiver.id, currency_name=currency_name, amount=amount)
+                Trades.create(user_id_sender=interaction.user.id, user_id_receiver=receiver.id, currency_name=currency_name, amount=amount)'''
 
             # Send Confirmation with trade logic
             await interaction.response.send_message(f"Are you sure you want to trade {amount} {currency_name} to {receiver.mention}?", view=confirmation(trade_logic, interaction=interaction, receiver=receiver, currency_name=currency_name, amount=amount), ephemeral=True)
+
+@tree.command(name="mail")
+async def mail(interaction: discord.Interaction):
+    # Grab Stasis
+    stasis = Stasis.select().where(Stasis.user_id_receiver == interaction.user.id).where(Stasis.completed == False)
+    # Check if there are any stasis
+    if len(stasis) == 0:
+        await interaction.response.send_message("You have no mail!", ephemeral=True)
+        return
+    else:
+        ...
+
+    # Check if user has a mail ticket (if not create one)
+    try:
+        Mail_Tickets.select().where(Mail_Tickets.user_id == interaction.user.id).get()
+    except Exception as e:
+        Mail_Tickets.create(user_id=interaction.user.id)
+        return
+    
+    # Grab Mail Ticket
+    mail_ticket = Mail_Tickets.select().where(Mail_Tickets.user_id == interaction.user.id).get().channel_id
+    mail_ticket_channel = discord.utils.get(interaction.guild.channels, id=mail_ticket)
+
+    # Check if mail ticket channel exists
+    if mail_ticket_channel == None:
+        await interaction.response.send_message("Your mail ticket channel does not exist!", ephemeral=True)
+        return
+    
+    # Send Mail to Sender
+    async def trade_logic(interaction: discord.Interaction):
+        # Grab Stasis
+        stasis = Stasis.select().where(Stasis.user_id_receiver == interaction.user.id).where(Stasis.completed == False)
+        
+        # Grab Server Config
+        server_config = Server_configs.get_by_id(interaction.guild.id)
+
+        # Grab Gate
+        gate = Verification_Gates.select().where(Verification_Gates.stasis == stasis).get()
+
+        # Update Gate State
+        gate.stage += 1
+        gate.save()
+
+        # Grab Mail Ticket
+        mail_ticket = Mail_Tickets.select().where(Mail_Tickets.user_id == interaction.user.id).get().channel_id
+        mail_ticket_channel = discord.utils.get(interaction.guild.channels, id=mail_ticket)
+
+        # Check if mail ticket channel exists
+        if mail_ticket_channel == None:
+            await interaction.response.send_message("Your mail ticket channel does not exist!", ephemeral=True)
+            return
+        
+        # Check if gate is complete
+        if gate.stage == 1:
+            # Grab Sender Profile
+            sender_profile = Profiles.select().where(Profiles.user_id == stasis.user_id_sender).where(Profiles.server_id == interaction.guild.id).get()
+            # Grab Receiver Profile
+            receiver_profile = Profiles.select().where(Profiles.user_id == interaction.user.id).where(Profiles.server_id == interaction.guild.id).get()
+            # Update Receiver Profile
+            receiver_profile.amount += stasis.amount
+            receiver_profile.save()
+            # Create Trade
+            Trades.create(user_id_sender=stasis.user_id_sender, user_id_receiver=interaction.user.id, currency_name=stasis.currency_name, amount=stasis.amount)
+            # Update Stasis
+            stasis.completed = True
+            stasis.save()
+            # Send Success Message
+            await mail_ticket_channel.send("Trade Completed!")
+            return
+        elif gate.stage == 2:
+            # Grab Sender Profile
+            sender_profile = Profiles.select().where(Profiles.user_id == stasis.user_id_sender).where(Profiles.server_id == interaction.guild.id).get()
+            # Grab Receiver Profile
+            receiver_profile = Profiles.select().where(Profiles.user_id == interaction.user.id).where(Profiles.server_id == interaction.guild.id).get()
+            # Update Sender Profile
+            sender_profile.amount += stasis.amount
+            sender_profile.save()
+            # Update Stasis
+            stasis.completed = True
+            stasis.save()
+            # Send Success Message
+            await mail_ticket_channel.send("Trade Cancelled!")
+            return
+        else:
+            await mail_ticket_channel.send("Something went wrong!")
+            return
+
+
+    for status in stasis:
+        await mail_ticket_channel.send(f"{status.user_id_sender} wants to trade {status.amount} {status.currency_name} to you", view=confirmation(trade_logic, interaction=interaction))
 
 @bot.event
 async def on_member_join(member: discord.Member):
