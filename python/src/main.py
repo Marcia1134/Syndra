@@ -94,8 +94,9 @@ async def setup(interaction: discord.Interaction):
             # Set Up Channels
             
             class channel_setup_view(discord.ui.View):
-                def __init__(self):
+                def __init__(self, currency_name):
                     super().__init__(timeout=None)
+                    self.currency_name = currency_name
                 
                 @discord.ui.button(label="Create Channels", style=discord.ButtonStyle.green, custom_id="create_channels")
                 async def create_channels(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -103,7 +104,7 @@ async def setup(interaction: discord.Interaction):
                     try:
                         category = await interaction.guild.create_category("Syndra", overwrites=None, reason="Syndra Setup")
                     except Exception as e:
-                        await interaction.channel.send(f"Something Went Wrong! /nError: ```{e}```", ephemeral=True)
+                        await interaction.channel.send(f"Something Went Wrong! /nError: ```{e}```")
                         print("Error: ", e)
                         return
                     # Create Channels
@@ -112,19 +113,20 @@ async def setup(interaction: discord.Interaction):
                         await interaction.guild.create_text_channel("Syndra-Commands", category=category, overwrites=None, reason="Syndra Setup")
                         await interaction.guild.create_text_channel("Syndra-Trade", category=category, overwrites=None, reason="Syndra Setup")
                     except Exception as e:
-                        await interaction.channel.send(f"Something Went Wrong! /nError: ```{e}```", ephemeral=True)
+                        await interaction.channel.send(f"Something Went Wrong! /nError: ```{e}```")
                         print("Error: ", e)
                         return
                     # Send Success Message
                     await interaction.channel.send("Channels Created!")
                     return
 
-            await interaction.channel.send("Syndra needs a couple channels to work well!\n> --Syndra Catergory-- \n> Syndra-Chat \n> Syndra-Commands \n> Syndra-Trade\n\nThe Above commands must be included! If you want we can create that all for you! Or you can use a command to set everything up yourself!  \n\n```if you want to set things up yourself, use the /setup_channels_manual command!\nHowever if you want automatic setup, please click the button below.```\n\nIf you need assistance in manual setup, please use the /setup_channels_manual_help", ephemeral=True)
+            await interaction.channel.send("Syndra needs a couple channels to work well!\n> --Syndra Catergory-- \n> Syndra-Chat \n> Syndra-Commands \n> Syndra-Trade\n\nThe Above commands must be included! If you want we can create that all for you! Or you can use a command to set everything up yourself!  \n\n```if you want to set things up yourself, use the /setup_channels_manual command!\nHowever if you want automatic setup, please click the button below.```\n\nIf you need assistance in manual setup, please use the /setup_channels_manual_help", view=channel_setup_view(self.currency_name.value))
 
             # 5.2 getting whitelist
             class whitelist_setup_view(discord.ui.View):
-                def __init__(self):
+                def __init__(self, currency_name):
                     super().__init__(timeout=None)
+                    self.currency_name = currency_name
                 
                 options = [discord.SelectOption(label="/bal", value="bal")
                            ,discord.SelectOption(label="/trade", value="trade")
@@ -134,14 +136,14 @@ async def setup(interaction: discord.Interaction):
                 async def whitelist(self, interaction: discord.Interaction, select: discord.ui.Select):
                     # Create Server Config
                     try:
-                        Server_configs.create(server_id=interaction.guild.id, whitelist=json.dumps(select.values, indent=4))
+                        Server_configs.create(server_id=interaction.guild.id, whitelist=json.dumps(select.values, indent=4), channels=json.dumps({"category" : "none", "chat" : "none", "commands" : "none", "trade" : "none"}, indent=4))
                     except Exception as e:
-                        await interaction.channel.send(f"Something Went Wrong! /nError: ```{e}```", ephemeral=True)
+                        await interaction.channel.send(f"Something Went Wrong! /nError: ```{e}```")
                         print("Error: ", e)
                         return
                     # Create currency without role allowance config
                     try:
-                        Currencies.create(server_id=interaction.guild.id, currency_name=self.currency_name.value, role_allowance=json.dumps({"none" : "none"}, indent=4))
+                        Currencies.create(server_id=interaction.guild.id, currency_name=self.currency_name, role_allowance=json.dumps({"none" : "none"}, indent=4))
                     except Exception as e:
                         await interaction.channel.send(f"Something Went Wrong! /nError: ```{e}```")
 
@@ -150,7 +152,7 @@ async def setup(interaction: discord.Interaction):
                     
                     return
             
-            await interaction.response.send_message("Select the commands you want to whitelist", view=whitelist_setup_view(), ephemeral=True)
+            await interaction.response.send_message("Select the commands you want to whitelist", view=whitelist_setup_view(self.currency_name.value), ephemeral=True)
             
             # DEPRECATED 
             # Could not handle more then 25 roles in the dropdown menu, see [discord.SelectOption(label=role.name, value=str(role.id)) for role in roles] for more info
@@ -226,22 +228,10 @@ async def setup_channels_manual_help(interaction: discord.Interaction):
 
 @tree.command(name="setup_channels_manual")
 async def setup_channels_manual(interaction: discord.Interaction, category: discord.CategoryChannel, chat: discord.TextChannel, commands: discord.TextChannel, trade: discord.TextChannel):
-    # Create Category
-    try:
-        category = await interaction.guild.create_category(category.name, overwrites=None, reason="Syndra Setup")
-    except Exception as e:
-        await interaction.channel.send(f"Something Went Wrong! /nError: ```{e}```", ephemeral=True)
-        print("Error: ", e)
-        return
-    # Create Channels
-    try:
-        await interaction.guild.create_text_channel(chat.name, category=category, overwrites=None, reason="Syndra Setup")
-        await interaction.guild.create_text_channel(commands.name, category=category, overwrites=None, reason="Syndra Setup")
-        await interaction.guild.create_text_channel(trade.name, category=category, overwrites=None, reason="Syndra Setup")
-    except Exception as e:
-        await interaction.channel.send(f"Something Went Wrong! /nError: ```{e}```", ephemeral=True)
-        print("Error: ", e)
-        return
+    # Write channel ids to db
+    Server_config_instance = Server_configs.get_by_id(interaction.guild.id)
+    Server_config_instance.channels = json.dumps({"category" : str(category.id), "chat" : str(chat.id), "commands" : str(commands.id), "trade" : str(trade.id)}, indent=4)
+    Server_config_instance.save()
     # Send Success Message
     await interaction.channel.send("Channels Stored!")
 
@@ -557,12 +547,15 @@ async def mail(interaction: discord.Interaction):
     try:
         Mail_Tickets.select().where(Mail_Tickets.user_id == interaction.user.id).get()
     except Exception as e:
-        Mail_Tickets.create(user_id=interaction.user.id)
-        return
+        # Create mail channel
+        mail_channel = await interaction.guild.create_text_channel(f"mail-{interaction.user.name}", category=discord.utils.get(interaction.guild.categories, name="Syndra"), reason="Mail Ticket")
+        # Create Mail Ticket
+        Mail_Tickets.create(user_id=interaction.user.id, channel_id=mail_channel.id)
     
     # Grab Mail Ticket
-    mail_ticket = Mail_Tickets.select().where(Mail_Tickets.user_id == interaction.user.id).get().channel_id
-    mail_ticket_channel = discord.utils.get(interaction.guild.channels, id=mail_ticket)
+    mail_ticket = Mail_Tickets.select().where(Mail_Tickets.user_id == interaction.user.id).get()
+    print(mail_ticket.channel_id)
+    mail_ticket_channel = discord.utils.get(interaction.guild.channels, id=mail_ticket.channel_id)
 
     # Check if mail ticket channel exists
     if mail_ticket_channel == None:
@@ -572,7 +565,7 @@ async def mail(interaction: discord.Interaction):
     # Send Mail to Sender
     async def trade_logic(interaction: discord.Interaction):
         # Grab Stasis
-        stasis = Stasis.select().where(Stasis.user_id_receiver == interaction.user.id).where(Stasis.completed == False)
+        stasis = Stasis.select().where(Stasis.user_id_receiver == interaction.user.id).where(Stasis.completed == False).get()
         
         # Grab Server Config
         server_config = Server_configs.get_by_id(interaction.guild.id)
@@ -627,7 +620,6 @@ async def mail(interaction: discord.Interaction):
         else:
             await mail_ticket_channel.send("Something went wrong!")
             return
-
 
     for status in stasis:
         await mail_ticket_channel.send(f"{status.user_id_sender} wants to trade {status.amount} {status.currency_name} to you", view=confirmation(trade_logic, interaction=interaction))
