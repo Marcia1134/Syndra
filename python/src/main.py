@@ -2,6 +2,7 @@ import discord
 from os import getenv
 from dotenv import load_dotenv
 from discord.ext import commands
+from discord import app_commands
 import peewee as pw
 import json
 
@@ -75,7 +76,7 @@ async def setup(interaction: discord.Interaction):
     except Exception as e:
         exists = False
     if exists:
-        await interaction.response.send_message("This Channel has an existing setup, to have this set up removed, contact an admin.", ephemeral=True)
+        await interaction.response.send_message("This Channel has an existing setup, to have this set up removed, contact an admin.")
         return
     
     # send setup message
@@ -152,7 +153,7 @@ async def setup(interaction: discord.Interaction):
                     
                     return
             
-            await interaction.response.send_message("Select the commands you want to whitelist", view=whitelist_setup_view(self.currency_name.value), ephemeral=True)
+            await interaction.response.send_message("Select the commands you want to whitelist", view=whitelist_setup_view(self.currency_name.value))
             
             # DEPRECATED 
             # Could not handle more then 25 roles in the dropdown menu, see [discord.SelectOption(label=role.name, value=str(role.id)) for role in roles] for more info
@@ -191,10 +192,10 @@ async def setup(interaction: discord.Interaction):
                             self.role_pay[selected_role] = amount
                             
                             # Send success message
-                            await interaction.response.send_message("Role Added!", ephemeral=True)
+                            await interaction.response.send_message("Role Added!")
                     
                     # Send the amount modal
-                    await interaction.response.send_modal(amount_modal(), ephemeral=True)
+                    await interaction.response.send_modal(amount_modal())
                 
                 @discord.ui.button(label="Done", style=discord.ButtonStyle.green, custom_id="done")
                 async def done(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -224,7 +225,7 @@ async def setup(interaction: discord.Interaction):
 
 @tree.command(name="setup_channels_manual_help")
 async def setup_channels_manual_help(interaction: discord.Interaction):
-    await interaction.response.send_message("When using the /setup_channels_manual command you will see four boxes. Please select the channel that you want to set as each in the following order. 1. Catergory, 2. Syndra-chat channel, 3. syndra-commands, 4. syndra-trade. If you mess up the order you will need to redo the command.", ephemeral=True)
+    await interaction.response.send_message("When using the /setup_channels_manual command you will see four boxes. Please select the channel that you want to set as each in the following order. 1. Catergory, 2. Syndra-chat channel, 3. syndra-commands, 4. syndra-trade. If you mess up the order you will need to redo the command.")
 
 @tree.command(name="setup_channels_manual")
 async def setup_channels_manual(interaction: discord.Interaction, category: discord.CategoryChannel, chat: discord.TextChannel, commands: discord.TextChannel, trade: discord.TextChannel):
@@ -237,7 +238,7 @@ async def setup_channels_manual(interaction: discord.Interaction, category: disc
 
 @tree.command(name="role_allowance_help")
 async def role_allowance_help(interaction: discord.Interaction):
-    await interaction.response.send_message("# SETTING UP A ROLE\nYou need to use the /role_allowance command! This command will ask for two things. the `role` you want to asssign payment to, and the `amount` you want to pay in. Please note the following:\nIn order to set a `role`, you must **MENTION** the role (@staff), once it turns BLUE in appearence, you can click to amount.\nIn order to set an `amount`, you must input aa number that does NOT contain ANY other characters. Please ***__only__*** use characters 0-9, anything else WILL BE REJECTED.", ephemeral=True)
+    await interaction.response.send_message("# SETTING UP A ROLE\nYou need to use the /role_allowance command! This command will ask for two things. the `role` you want to asssign payment to, and the `amount` you want to pay in. Please note the following:\nIn order to set a `role`, you must **MENTION** the role (@staff), once it turns BLUE in appearence, you can click to amount.\nIn order to set an `amount`, you must input aa number that does NOT contain ANY other characters. Please ***__only__*** use characters 0-9, anything else WILL BE REJECTED.")
 
 @tree.command(name="role_allowance")
 async def role_allowance(interaction: discord.Interaction, role: discord.Role, amount: int):
@@ -245,14 +246,14 @@ async def role_allowance(interaction: discord.Interaction, role: discord.Role, a
     try:
         Server_configs.get_by_id(interaction.guild.id)
     except Exception as e:
-        await interaction.response.send_message("This Channel does not have an existing setup, to set up, use the /setup command.", ephemeral=True)
+        await interaction.response.send_message("This Channel does not have an existing setup, to set up, use the /setup command.")
         return
     
     # Check if currency exists
     try:
         Currencies.get_by_id(interaction.guild.id)
     except Exception as e:
-        await interaction.response.send_message("This Channel does not have an existing currency, to set up, use the /setup command.", ephemeral=True)
+        await interaction.response.send_message("This Channel does not have an existing currency, to set up, use the /setup command.")
         return
     
     # Grab Role Allowance config JSON
@@ -260,7 +261,7 @@ async def role_allowance(interaction: discord.Interaction, role: discord.Role, a
     
     # Check if role is already in the config
     if str(role.id) in role_allowance:
-        await interaction.response.send_message("This role is already in the config, to change the amount, use the /role_allowance_change command.", ephemeral=True)
+        await interaction.response.send_message("This role is already in the config, to change the amount, use the /role_allowance_change command.")
         return
     
     # Add role to config
@@ -272,7 +273,7 @@ async def role_allowance(interaction: discord.Interaction, role: discord.Role, a
     Currency_instance.save()
 
     # Send Success Message
-    await interaction.response.send_message("Role Added!", ephemeral=True)
+    await interaction.response.send_message("Role Added!")
 
 @tree.command(name="role_allowance_change")
 async def role_allowance_change(interaction: discord.Interaction, role: discord.Role, amount: int):
@@ -280,14 +281,14 @@ async def role_allowance_change(interaction: discord.Interaction, role: discord.
     try:
         Server_configs.get_by_id(interaction.guild.id)
     except Exception as e:
-        await interaction.response.send_message("This Channel does not have an existing setup, to set up, use the /setup command.", ephemeral=True)
+        await interaction.response.send_message("This Channel does not have an existing setup, to set up, use the /setup command.")
         return
     
     # Check if currency exists
     try:
         Currencies.get_by_id(interaction.guild.id)
     except Exception as e:
-        await interaction.response.send_message("This Channel does not have an existing currency, to set up, use the /setup command.", ephemeral=True)
+        await interaction.response.send_message("This Channel does not have an existing currency, to set up, use the /setup command.")
         return
     
     # Grab Role Allowance config JSON
@@ -295,7 +296,7 @@ async def role_allowance_change(interaction: discord.Interaction, role: discord.
     
     # Check if role is already in the config
     if str(role.id) not in role_allowance:
-        await interaction.response.send_message("This role is not in the config, to add the role, use the /role_allowance command.", ephemeral=True)
+        await interaction.response.send_message("This role is not in the config, to add the role, use the /role_allowance command.")
         return
     
     # Change amount
@@ -307,7 +308,7 @@ async def role_allowance_change(interaction: discord.Interaction, role: discord.
     Currency_instance.save()
 
     # Send Success Message
-    await interaction.response.send_message("Role Amount Changed!", ephemeral=True)
+    await interaction.response.send_message("Role Amount Changed!")
 
 @tree.command(name="role_allowance_remove")
 async def role_allowance_remove(interaction: discord.Interaction, role: discord.Role):
@@ -315,14 +316,14 @@ async def role_allowance_remove(interaction: discord.Interaction, role: discord.
     try:
         Server_configs.get_by_id(interaction.guild.id)
     except Exception as e:
-        await interaction.response.send_message("This Channel does not have an existing setup, to set up, use the /setup command.", ephemeral=True)
+        await interaction.response.send_message("This Channel does not have an existing setup, to set up, use the /setup command.")
         return
     
     # Check if currency exists
     try:
         Currencies.get_by_id(interaction.guild.id)
     except Exception as e:
-        await interaction.response.send_message("This Channel does not have an existing currency, to set up, use the /setup command.", ephemeral=True)
+        await interaction.response.send_message("This Channel does not have an existing currency, to set up, use the /setup command.")
         return
     
     # Grab Role Allowance config JSON
@@ -330,7 +331,7 @@ async def role_allowance_remove(interaction: discord.Interaction, role: discord.
     
     # Check if role is already in the config
     if str(role.id) not in role_allowance:
-        await interaction.response.send_message("This role is not in the config, to add the role, use the /role_allowance command.", ephemeral=True)
+        await interaction.response.send_message("This role is not in the config, to add the role, use the /role_allowance command.")
         return
     
     # Remove role
@@ -342,7 +343,7 @@ async def role_allowance_remove(interaction: discord.Interaction, role: discord.
     Currency_instance.save()
 
     # Send Success Message
-    await interaction.response.send_message("Role Removed!", ephemeral=True)
+    await interaction.response.send_message("Role Removed!")
 
 @tree.command(name="role_allowance_list")
 async def role_allowance_list(interaction: discord.Interaction):
@@ -350,14 +351,14 @@ async def role_allowance_list(interaction: discord.Interaction):
     try:
         Server_configs.get_by_id(interaction.guild.id)
     except Exception as e:
-        await interaction.response.send_message("This Channel does not have an existing setup, to set up, use the /setup command.", ephemeral=True)
+        await interaction.response.send_message("This Channel does not have an existing setup, to set up, use the /setup command.")
         return
     
     # Check if currency exists
     try:
         Currencies.get_by_id(interaction.guild.id)
     except Exception as e:
-        await interaction.response.send_message("This Channel does not have an existing currency, to set up, use the /setup command.", ephemeral=True)
+        await interaction.response.send_message("This Channel does not have an existing currency, to set up, use the /setup command.")
         return
     
     # Grab Role Allowance config JSON
@@ -365,11 +366,11 @@ async def role_allowance_list(interaction: discord.Interaction):
     
     # Check if role is already in the config
     if len(role_allowance) == 0:
-        await interaction.response.send_message("There are no roles in the config, to add a role, use the /role_allowance command.", ephemeral=True)
+        await interaction.response.send_message("There are no roles in the config, to add a role, use the /role_allowance command.")
         return
     
     # Send Success Message
-    await interaction.response.send_message(f"```json\n{json.dumps(role_allowance, indent=4)}\n```", ephemeral=True)
+    await interaction.response.send_message(f"```json\n{json.dumps(role_allowance, indent=4)}\n```")
 
 @tree.command(name="role_allowance_done")
 async def role_allowance_done(interaction: discord.Interaction):
@@ -377,14 +378,14 @@ async def role_allowance_done(interaction: discord.Interaction):
     try:
         Server_configs.get_by_id(interaction.guild.id)
     except Exception as e:
-        await interaction.response.send_message("This Channel does not have an existing setup, to set up, use the /setup command.", ephemeral=True)
+        await interaction.response.send_message("This Channel does not have an existing setup, to set up, use the /setup command.")
         return
     
     # Check if currency exists
     try:
         Currencies.get_by_id(interaction.guild.id)
     except Exception as e:
-        await interaction.response.send_message("This Channel does not have an existing currency, to set up, use the /setup command.", ephemeral=True)
+        await interaction.response.send_message("This Channel does not have an existing currency, to set up, use the /setup command.")
         return
     
     # Grab Role Allowance config JSON
@@ -392,7 +393,7 @@ async def role_allowance_done(interaction: discord.Interaction):
 
     # Check if role is already in the config
     if len(role_allowance) == 0:
-        await interaction.response.send_message("There are no roles in the config, to add a role, use the /role_allowance command.", ephemeral=True)
+        await interaction.response.send_message("There are no roles in the config, to add a role, use the /role_allowance command.")
         return
     
     async def role_allowance_completion_logic(interaction: discord.Interaction, role_allowance: dict):
@@ -403,30 +404,36 @@ async def role_allowance_done(interaction: discord.Interaction):
         # Send Success Message
         await interaction.channel.send("You know, thank you.  Thank you... What else do I have to say? I mean honestly.You used all my commands and everything! Look at you! Using commands like that! Like a Wizzard ~~harry~~. Like a Wizard! You can do all that can't you. aint that just something.them fingers flying across the keyboard. Truely amazing.")
     
-    await interaction.response.send_message("Are you sure you want to complete the role allowance setup?", view=confirmation(role_allowance_completion_logic, interaction=interaction, role_allowance=role_allowance), ephemeral=True)
+    await interaction.response.send_message("Are you sure you want to complete the role allowance setup?", view=confirmation(role_allowance_completion_logic, interaction=interaction, role_allowance=role_allowance))
 
 @tree.command(name="adopt") # DEBUG
 async def adopt(interaction: discord.Interaction):
     try:
         Profiles.create(server_id=interaction.guild.id, user_id=interaction.user.id, amount=Currencies.get_by_id(interaction.guild.id).currency_default)
-        await interaction.response.send_message("Adopted!", ephemeral=True)
+        await interaction.response.send_message("Adopted!")
     except Exception as e:
-        await interaction.response.send_message(e, ephemeral=True)
+        await interaction.response.send_message(e)
 
-@tree.command(name="bal")
-async def bal(interaction: discord.Interaction, all: bool = False):
+@tree.command(name="wallet") # Bal command changed to wallet
+async def wallet(interaction: discord.Interaction, all: bool = False):
     try:
         if all:
             stuff = ''
             for profile in Profiles.select().where(Profiles.user_id == interaction.user.id):
                 stuff += f"{profile.amount} {Currencies.get_by_id(profile.server_id).currency_name}\n"
-            await interaction.response.send_message(stuff, ephemeral=True)
+            await interaction.response.send_message(stuff)
         else:
-            await interaction.response.send_message(f"{Profiles.select().where(Profiles.user_id == interaction.user.id).where(Profiles.server_id == interaction.guild.id).get().amount} {Currencies.get_by_id(interaction.guild_id).currency_name}", ephemeral=True)
+            await interaction.response.send_message(f"{Profiles.select().where(Profiles.user_id == interaction.user.id).where(Profiles.server_id == interaction.guild.id).get().amount} {Currencies.get_by_id(interaction.guild_id).currency_name}")
     except Exception as e:    
         Profiles.create(server_id=interaction.guild.id, user_id=interaction.user.id, amount=0)
-        await interaction.response.send_message("You do not have a profile, A profile is being created, try this command again!", ephemeral=True)
-    
+        if all:
+            stuff = ''
+            for profile in Profiles.select().where(Profiles.user_id == interaction.user.id):
+                stuff += f"{profile.amount} {Currencies.get_by_id(profile.server_id).currency_name}\n"
+            await interaction.response.send_message(stuff)
+        else:
+            await interaction.response.send_message(f"{Profiles.select().where(Profiles.user_id == interaction.user.id).where(Profiles.server_id == interaction.guild.id).get().amount} {Currencies.get_by_id(interaction.guild_id).currency_name}")
+        
 class confirmation(discord.ui.View):
     """
     Confirmation View
@@ -449,88 +456,113 @@ class confirmation(discord.ui.View):
     async def no(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.edit_message(view=None, content="Operation Cancelled!")
 
+# Get list of currencies
+def get_currencies():
+    # Grab Currencies
+    currencies = Currencies.select().get()
+    # Check if there are any currencies
+    if len(currencies) == 0:
+        return None
+    
+    list_of_choices = []
+
+    for currency in currencies:
+        list_of_choices.append(discord.SelectOption(label=currency.currency_name, value=currency.currency_name))
+    
+    return list_of_choices
+
+# Stage 1 trade; initiating trade
 @tree.command(name="trade")
+@app_commands.choices(currency=[get_currencies()])
 async def trade(interaction: discord.Interaction, receiver: discord.User, currency_name: str, amount: int):
     # Check Logic
     if amount < 0:
-        await interaction.response.send_message("You can't trade negative amounts!", ephemeral=True)
+        await interaction.response.send_message("You can't trade negative amounts!")
+        return
     elif amount == 0:
-        await interaction.response.send_message("You can't trade 0!", ephemeral=True)
-    else:
-        # Grab Profile
+        await interaction.response.send_message("You can't trade 0!")
+        return
+    # Grab Receiver Profile
+    try:
+        profile = Profiles.select().where(Profiles.user_id == interaction.user.id).where(Profiles.server_id == interaction.guild.id).get()
+    except Exception as e:
+        await interaction.response.send_message("You don't have a profile in this server!")
+    # Check if user has enough money
+    if amount > profile.amount:
+        await interaction.response.send_message("You don't have enough money!")
+        return
+
+    # Trade Logic
+    async def trade_logic(interaction: discord.Interaction, receiver: discord.User, currency_name: str, amount: int):
+
+        # Stage 2; ping receiver
+
+        
+
+        # DEPRECATED
+        '''# Grab Sender Profile
+        sender_profile = Profiles.select().where(Profiles.user_id == interaction.user.id).where(Profiles.server_id == interaction.guild.id).get()
+        # Grab Receiver Profile
         try:
-            profile = Profiles.select().where(Profiles.user_id == interaction.user.id).where(Profiles.server_id == interaction.guild.id).get()
+            receiver_profile = Profiles.select().where(Profiles.user_id == receiver.id).where(Profiles.server_id == interaction.guild.id).get()
         except Exception as e:
-            await interaction.response.send_message("You don't have a profile in this server!", ephemeral=True)
-        # Check if user has enough money
-        if amount > profile.amount:
-            await interaction.response.send_message("You don't have enough money!", ephemeral=True)
-        else:
-            # Trade Logic
-            async def trade_logic(interaction: discord.Interaction, receiver: discord.User, currency_name: str, amount: int):
-                # Grab Sender Profile
-                sender_profile = Profiles.select().where(Profiles.user_id == interaction.user.id).where(Profiles.server_id == interaction.guild.id).get()
-                # Grab Receiver Profile
-                try:
-                    receiver_profile = Profiles.select().where(Profiles.user_id == receiver.id).where(Profiles.server_id == interaction.guild.id).get()
-                except Exception as e:
-                    Profiles.create(server_id=interaction.guild.id, user_id=receiver.id, amount=Currencies.get_by_id(interaction.guild.id).currency_default)
-                    receiver_profile = Profiles.select().where(Profiles.user_id == receiver.id).where(Profiles.server_id == interaction.guild.id).get()
-                    return
+            Profiles.create(server_id=interaction.guild.id, user_id=receiver.id, amount=Currencies.get_by_id(interaction.guild.id).currency_default)
+            receiver_profile = Profiles.select().where(Profiles.user_id == receiver.id).where(Profiles.server_id == interaction.guild.id).get()
+            return
 
-                # Create Stasis                 
-                Stasis.create(user_id_sender=interaction.user.id, user_id_receiver=receiver.id, currency_name=currency_name, amount=amount, type=0, completed=False)
+        # Create Stasis                 
+        Stasis.create(user_id_sender=interaction.user.id, user_id_receiver=receiver.id, currency_name=currency_name, amount=amount, type=0, completed=False)
 
-                # Create Gate
-                gate_id = Verification_Gates.create(stage=0, stasis=Stasis.select().where(Stasis.user_id_sender == interaction.user.id).where(Stasis.user_id_receiver == receiver.id).where(Stasis.currency_name == currency_name).where(Stasis.amount == amount).where(Stasis.type == 0).where(Stasis.completed == False).get())
+        # Create Gate
+        gate_id = Verification_Gates.create(stage=0, stasis=Stasis.select().where(Stasis.user_id_sender == interaction.user.id).where(Stasis.user_id_receiver == receiver.id).where(Stasis.currency_name == currency_name).where(Stasis.amount == amount).where(Stasis.type == 0).where(Stasis.completed == False).get())
 
-                # Remove Funds from Sender
-                sender_profile.amount -= amount
-                sender_profile.save()
+        # Remove Funds from Sender
+        sender_profile.amount -= amount
+        sender_profile.save()
 
-                # Grab Trade notification channel
-                trade_channel = discord.utils.get(interaction.guild.channels, id=int(json.loads(Server_configs.get_by_id(interaction.guild.id).channels)["trade"]))
+        # Grab Trade notification channel
+        trade_channel = discord.utils.get(interaction.guild.channels, id=int(json.loads(Server_configs.get_by_id(interaction.guild.id).channels)["trade"]))
 
-                # Notify Receiver
-                await trade_channel.send(f"{interaction.user.mention} wants to trade {amount} {currency_name} to you", delete_after=1)
+        # Notify Receiver
+        await trade_channel.send(f"{interaction.user.mention} wants to trade {amount} {currency_name} to you", delete_after=1)'''
 
-                # DEPRECATED
-                '''# Trade Logic for Receiver
-                async def trade_logic_receiver(interaction: discord.Interaction, receiver: discord.User, currency_name: str, amount: int):
-                    # Grab Sender Profile
-                    sender_profile = Profiles.select().where(Profiles.user_id == interaction.user.id).where(Profiles.server_id == interaction.guild.id).get()
-                    # Grab Receiver Profile
-                    try:
-                        receiver_profile = Profiles.select().where(Profiles.user_id == receiver.id).where(Profiles.server_id == interaction.guild.id).get()
-                    except Exception as e:
-                        Profiles.create(server_id=interaction.guild.id, user_id=receiver.id, amount=Currencies.get_by_id(interaction.guild.id).currency_default)
-                        receiver_profile = Profiles.select().where(Profiles.user_id == receiver.id).where(Profiles.server_id == interaction.guild.id).get()
-                        return
-                    # Update Sender Profile
-                    sender_profile.amount -= amount
-                    sender_profile.save()
-                    # Update Receiver Profile
-                    receiver_profile.amount += amount
-                    receiver_profile.save()
-                    # Create Trade
-                    Trades.create(user_id_sender=interaction.user.id, user_id_receiver=receiver.id, currency_name=currency_name, amount=amount)
-                    return
-                
-                # Send Confirmation with trade logic
-                await interaction.channel.send(f"Are you sure you want to trade {amount} {currency_name} to {receiver.mention}?", view=confirmation(trade_logic_receiver, interaction=interaction, receiver=receiver, currency_name=currency_name, amount=amount))
+        # DEPRECATED
+        '''# Trade Logic for Receiver
+        async def trade_logic_receiver(interaction: discord.Interaction, receiver: discord.User, currency_name: str, amount: int):
+            # Grab Sender Profile
+            sender_profile = Profiles.select().where(Profiles.user_id == interaction.user.id).where(Profiles.server_id == interaction.guild.id).get()
+            # Grab Receiver Profile
+            try:
+                receiver_profile = Profiles.select().where(Profiles.user_id == receiver.id).where(Profiles.server_id == interaction.guild.id).get()
+            except Exception as e:
+                Profiles.create(server_id=interaction.guild.id, user_id=receiver.id, amount=Currencies.get_by_id(interaction.guild.id).currency_default)
+                receiver_profile = Profiles.select().where(Profiles.user_id == receiver.id).where(Profiles.server_id == interaction.guild.id).get()
+                return
+            # Update Sender Profile
+            sender_profile.amount -= amount
+            sender_profile.save()
+            # Update Receiver Profile
+            receiver_profile.amount += amount
+            receiver_profile.save()
+            # Create Trade
+            Trades.create(user_id_sender=interaction.user.id, user_id_receiver=receiver.id, currency_name=currency_name, amount=amount)
+            return
+        
+        # Send Confirmation with trade logic
+        await interaction.channel.send(f"Are you sure you want to trade {amount} {currency_name} to {receiver.mention}?", view=confirmation(trade_logic_receiver, interaction=interaction, receiver=receiver, currency_name=currency_name, amount=amount))
 
-                # DEPRECATED
-                # Update Sender Profile
-                sender_profile.amount -= amount
-                sender_profile.save()
-                # Update Receiver Profile
-                receiver_profile.amount += amount
-                receiver_profile.save()
-                # Create Trade
-                Trades.create(user_id_sender=interaction.user.id, user_id_receiver=receiver.id, currency_name=currency_name, amount=amount)'''
+        # DEPRECATED
+        # Update Sender Profile
+        sender_profile.amount -= amount
+        sender_profile.save()
+        # Update Receiver Profile
+        receiver_profile.amount += amount
+        receiver_profile.save()
+        # Create Trade
+        Trades.create(user_id_sender=interaction.user.id, user_id_receiver=receiver.id, currency_name=currency_name, amount=amount)'''
 
-            # Send Confirmation with trade logic
-            await interaction.response.send_message(f"Are you sure you want to trade {amount} {currency_name} to {receiver.mention}?", view=confirmation(trade_logic, interaction=interaction, receiver=receiver, currency_name=currency_name, amount=amount), ephemeral=True)
+    # Send Confirmation with trade logic
+    await interaction.response.send_message(f"Are you sure you want to trade {amount} {currency_name} to {receiver.mention}?", view=confirmation(trade_logic, interaction=interaction, receiver=receiver, currency_name=currency_name, amount=amount))
 
 @tree.command(name="mail")
 async def mail(interaction: discord.Interaction):
@@ -538,7 +570,7 @@ async def mail(interaction: discord.Interaction):
     stasis = Stasis.select().where(Stasis.user_id_receiver == interaction.user.id).where(Stasis.completed == False)
     # Check if there are any stasis
     if len(stasis) == 0:
-        await interaction.response.send_message("You have no mail!", ephemeral=True)
+        await interaction.response.send_message("You have no mail!")
         return
     else:
         ...
@@ -559,7 +591,7 @@ async def mail(interaction: discord.Interaction):
 
     # Check if mail ticket channel exists
     if mail_ticket_channel == None:
-        await interaction.response.send_message("Your mail ticket channel does not exist!", ephemeral=True)
+        await interaction.response.send_message("Your mail ticket channel does not exist!")
         return
     
     # Send Mail to Sender
@@ -583,7 +615,7 @@ async def mail(interaction: discord.Interaction):
 
         # Check if mail ticket channel exists
         if mail_ticket_channel == None:
-            await interaction.response.send_message("Your mail ticket channel does not exist!", ephemeral=True)
+            await interaction.response.send_message("Your mail ticket channel does not exist!")
             return
         
         # Check if gate is complete
