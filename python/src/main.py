@@ -36,15 +36,16 @@ class Profiles(BaseModel):
 
 class Trades(BaseModel):
     trade_id = pw.AutoField(primary_key=True)
-    user_id_sender = pw.IntegerField()
-    user_id_receiver = pw.IntegerField()
+    user_id_customer = pw.IntegerField()
+    user_id_seller = pw.IntegerField()
     currency_name = pw.IntegerField()
+    product_url = pw.TextField(default="none")
     amount = pw.IntegerField()
 
 class Stasis(BaseModel):
     stasis_id = pw.AutoField(primary_key=True)
-    user_id_sender = pw.IntegerField()
-    user_id_receiver = pw.IntegerField()
+    user_id_customer = pw.IntegerField()
+    user_id_seller = pw.IntegerField()
     currency_name = pw.IntegerField()
     amount = pw.IntegerField()
     type = pw.IntegerField() # 0 = trade,
@@ -474,7 +475,7 @@ def get_currencies():
 # Stage 1 trade; initiating trade
 @tree.command(name="trade")
 @app_commands.choices(currency=[get_currencies()])
-async def trade(interaction: discord.Interaction, receiver: discord.User, currency_name: str, amount: int):
+async def trade(interaction: discord.Interaction, seller: discord.User, currency_name: str, amount: int):
     # Check Logic
     if amount < 0:
         await interaction.response.send_message("You can't trade negative amounts!")
@@ -482,7 +483,7 @@ async def trade(interaction: discord.Interaction, receiver: discord.User, curren
     elif amount == 0:
         await interaction.response.send_message("You can't trade 0!")
         return
-    # Grab Receiver Profile
+    # Grab Customer Profile
     try:
         profile = Profiles.select().where(Profiles.user_id == interaction.user.id).where(Profiles.server_id == interaction.guild.id).get()
     except Exception as e:
@@ -492,12 +493,32 @@ async def trade(interaction: discord.Interaction, receiver: discord.User, curren
         await interaction.response.send_message("You don't have enough money!")
         return
 
+    # Grab Stasis Gate State
+    gate = Verification_Gates.select().where(Verification_Gates.stasis == Stasis.select().where(Stasis.user_id_customer == interaction.user.id).where(Stasis.user_id_receiver == seller.id).where(Stasis.currency_name == currency_name).where(Stasis.amount == amount).where(Stasis.type == 0).where(Stasis.completed == False).get()).get() # I HATE PEEWEE
+
+    # Update Gate State
+    gate.stage = 1 # Set State 1
+    gate.save()
+
     # Trade Logic
-    async def trade_logic(interaction: discord.Interaction, receiver: discord.User, currency_name: str, amount: int):
+    async def trade_logic(interaction: discord.Interaction, seller: discord.User, currency_name: str, amount: int):
 
-        # Stage 2; ping receiver
+        # Stage 2; ping seller
 
-        
+        # Grab server config
+        server_config = Server_configs.get_by_id(interaction.guild.id)
+
+        # Grab seller profile
+        seller_profile = Profiles.select().where(Profiles.user_id == seller.id).where(Profiles.server_id == interaction.guild.id).get()
+
+        # Grab trade notification channel
+        trade_channel = discord.utils.get(interaction.guild.channels, id=int(json.loads(Server_configs.get_by_id(interaction.guild.id).channels)["trade"]))
+
+        # Notify Seller
+        await trade_channel.send(f"{interaction.user.mention} wants to trade {amount} {currency_name} from you", delete_after=1)
+
+        # Create Stasis
+        Stasis.create(user_id_customer=interaction.user.id, user_id_receiver=seller.id, currency_name=currency_name, amount=amount, type=0, completed=False)
 
         # DEPRECATED
         '''# Grab Sender Profile
@@ -511,10 +532,10 @@ async def trade(interaction: discord.Interaction, receiver: discord.User, curren
             return
 
         # Create Stasis                 
-        Stasis.create(user_id_sender=interaction.user.id, user_id_receiver=receiver.id, currency_name=currency_name, amount=amount, type=0, completed=False)
+        Stasis.create(user_id_customer=interaction.user.id, user_id_receiver=receiver.id, currency_name=currency_name, amount=amount, type=0, completed=False)
 
         # Create Gate
-        gate_id = Verification_Gates.create(stage=0, stasis=Stasis.select().where(Stasis.user_id_sender == interaction.user.id).where(Stasis.user_id_receiver == receiver.id).where(Stasis.currency_name == currency_name).where(Stasis.amount == amount).where(Stasis.type == 0).where(Stasis.completed == False).get())
+        gate_id = Verification_Gates.create(stage=0, stasis=Stasis.select().where(Stasis.user_id_customer == interaction.user.id).where(Stasis.user_id_receiver == receiver.id).where(Stasis.currency_name == currency_name).where(Stasis.amount == amount).where(Stasis.type == 0).where(Stasis.completed == False).get())
 
         # Remove Funds from Sender
         sender_profile.amount -= amount
@@ -545,7 +566,7 @@ async def trade(interaction: discord.Interaction, receiver: discord.User, curren
             receiver_profile.amount += amount
             receiver_profile.save()
             # Create Trade
-            Trades.create(user_id_sender=interaction.user.id, user_id_receiver=receiver.id, currency_name=currency_name, amount=amount)
+            Trades.create(user_id_customer=interaction.user.id, user_id_receiver=receiver.id, currency_name=currency_name, amount=amount)
             return
         
         # Send Confirmation with trade logic
@@ -559,10 +580,10 @@ async def trade(interaction: discord.Interaction, receiver: discord.User, curren
         receiver_profile.amount += amount
         receiver_profile.save()
         # Create Trade
-        Trades.create(user_id_sender=interaction.user.id, user_id_receiver=receiver.id, currency_name=currency_name, amount=amount)'''
+        Trades.create(user_id_customer=interaction.user.id, user_id_receiver=receiver.id, currency_name=currency_name, amount=amount)'''
 
     # Send Confirmation with trade logic
-    await interaction.response.send_message(f"Are you sure you want to trade {amount} {currency_name} to {receiver.mention}?", view=confirmation(trade_logic, interaction=interaction, receiver=receiver, currency_name=currency_name, amount=amount))
+    await interaction.response.send_message(f"Are you sure you want to trade {amount} {currency_name} to {seller.mention}?", view=confirmation(trade_logic, interaction=interaction, seller = seller, currency_name=currency_name, amount=amount))
 
 @tree.command(name="mail")
 async def mail(interaction: discord.Interaction):
@@ -572,15 +593,13 @@ async def mail(interaction: discord.Interaction):
     if len(stasis) == 0:
         await interaction.response.send_message("You have no mail!")
         return
-    else:
-        ...
 
     # Check if user has a mail ticket (if not create one)
     try:
         Mail_Tickets.select().where(Mail_Tickets.user_id == interaction.user.id).get()
     except Exception as e:
         # Create mail channel
-        mail_channel = await interaction.guild.create_text_channel(f"mail-{interaction.user.name}", category=discord.utils.get(interaction.guild.categories, name="Syndra"), reason="Mail Ticket")
+        mail_channel = await interaction.guild.create_text_channel(f"mail-{interaction.user.name}", category = discord.utils.get(interaction.guild.categories, id=json.loads(Server_configs.select().where(Server_configs.server_id == interaction.guild.id).get().channels)["category"]), reason="Mail Ticket") # Please do not ask me what this line of code means. it is inline hell over here.
         # Create Mail Ticket
         Mail_Tickets.create(user_id=interaction.user.id, channel_id=mail_channel.id)
     
@@ -591,10 +610,117 @@ async def mail(interaction: discord.Interaction):
 
     # Check if mail ticket channel exists
     if mail_ticket_channel == None:
-        await interaction.response.send_message("Your mail ticket channel does not exist!")
+        await interaction.response.send_message("Your mail ticket channel does not exist! Something has gone wrong, please contact and Admin for further assistance. (Awaiting error code update)")
         return
     
-    # Send Mail to Sender
+    # Seller View Class (Stage 2)
+    class seller_view(discord.ui.View):
+        def __init__(self, interaction: discord.Interaction, stasis: Stasis):
+            super().__init__(timeout=None)
+            self.interaction = interaction
+            self.stasis = stasis
+        
+        @discord.ui.button(label="Product Ready!", style=discord.ButtonStyle.green, custom_id="accept")
+        async def accept(self, interaction: discord.Interaction, button: discord.ui.Button):
+            # Stage 3; ping customer
+
+            # Step 3.1 Get img URL from seller (modal)
+            class img_url_modal(discord.ui.modal):
+                def __init__(self):
+                    super().__init__(title="Image URL", timeout=None)
+                    self.img_url = discord.ui.TextInput(label="Image URL", placeholder="Image URL", min_length=1, max_length=2000, required=True)
+                    self.add_item(self.img_url)
+                
+                async def on_submit(self, interaction: discord.Interaction):
+
+                    # Step 3.2 Filter image URL
+                    
+                    # [3.2.1] Check img URL filetype
+                    if not self.img_url.value.endswith(".png") or not self.img_url.value.endswith(".jpg") or not self.img_url.value.endswith(".jpeg"):
+                        await interaction.response.send_message("The image URL you provided is not a valid image URL!")
+                        return
+                    
+                    # [3.2.2] Attempt to display IMG
+                    async def image_confirmation_logic():
+
+                        # Get Stasis
+                        stasis = Stasis.select().where(Stasis.user_id_customer == self.stasis.user_id_customer).where(Stasis.user_id_receiver == self.stasis.user_id_receiver).where(Stasis.currency_name == self.stasis.currency_name).where(Stasis.amount == self.stasis.amount).where(Stasis.type == 0).where(Stasis.completed == False).get()
+
+                        # Update Stasis
+                        stasis.completed = True
+                        stasis.save()
+
+                        # Get Trade
+                        trade = Trades.select().where(Trades.user_id_customer == self.stasis.user_id_customer).where(Trades.user_id_receiver == self.stasis.user_id_receiver).where(Trades.currency_name == self.stasis.currency_name).where(Trades.amount == self.stasis.amount).get()
+
+                        # Update Trade
+                        trade.product_url = self.img_url.value
+                        trade.save()
+
+                        # Grab trade notification channel
+                        trade_channel = discord.utils.get(interaction.guild.channels, id=int(json.loads(Server_configs.get_by_id(interaction.guild.id).channels)["trade"]))
+
+                        # Notify Customer
+                        await trade_channel.send(f"{interaction.user.mention} wants to trade {self.stasis.amount} {self.stasis.currency_name} to you", delete_after=1)
+
+                        # Send Success Message
+                        await interaction.channel.send("Trade Stage 2 Completed!")
+                        return
+                    
+                    try:
+                        await interaction.response.send_message("Is this the image you want to send?", view=confirmation(image_confirmation_logic))
+                    except Exception as e:
+                        await interaction.channel.send(f"Something is wrong with the Image link provided. Please use the help button or for further assistance, contact an admin.")
+                        print("Error: ", e)
+                        return
+            
+            # Send Modal
+            await interaction.response.send_modal(img_url_modal())
+
+        @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, custom_id="cancel")
+        async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+
+            # Grab trade notification channel
+            trade_channel = discord.utils.get(interaction.guild.channels, id=int(json.loads(Server_configs.get_by_id(interaction.guild.id).channels)["trade"]))
+
+            # Notify Customer
+            await trade_channel.send(f"{interaction.user.mention} wants to trade {self.stasis.amount} {self.stasis.currency_name} to you", delete_after=1)
+
+            # Grab Stasis
+            stasis = Stasis.select().where(Stasis.user_id_customer == self.stasis.user_id_customer).where(Stasis.user_id_receiver == self.stasis.user_id_receiver).where(Stasis.currency_name == self.stasis.currency_name).where(Stasis.amount == self.stasis.amount).where(Stasis.type == 0).where(Stasis.completed == False).get()
+
+            # Update Stasis
+            stasis.completed = True
+            stasis.save()
+
+            # Send Success Message
+            await interaction.channel.send("Trade Cancelled!")
+
+            return
+        
+        @discord.ui.button(label="Help", style=discord.ButtonStyle.grey, custom_id="help")
+        async def help(self, interaction: discord.Interaction, button: discord.ui.Button):
+            await interaction.response.send_message("Hey there! Here is a quick explaination on how to get your Image URL! \n\n> We would reccomend the use of the free image host postimage. DUE NOTICE however, free hosting sites like this often contain vunarabilities and are often able to be viewed by anyone given the link (or if they simply guess the link.) It is highly encouraged you do not share sensitive media (such that contain any identifiable infomation, and explict media and etc.) If you wish to use another platform you are welcome, however here we will cover the guide for this website only!\n\n1. Head to https://postimages.org/ \n2. Click `Choose Images` and upload the image from your local disk. \n3. Wait for the upload to complete \n4. Copy the `Direct Link` and paste it into the modal. \n5. Click `Submit` and you are done! \n\n> If you need further assistance, please contact an admin.")
+
+    # Customer View Class (Stage 3)
+    class customer_view(discord.ui.View):
+        def __init__(self):
+            super().__init__(timeout=None)
+            
+
+    # Send the view class
+    for status in stasis:
+        if interaction.user.id == status.user_id_seller:
+            await mail_ticket_channel.send(f"{status.user_id_customer} wants to trade {status.amount} {status.currency_name} to you", view=seller_view(interaction=interaction, stasis=status))
+            return
+        elif interaction.user.id == status.user_id_customer:
+            await mail_ticket_channel.send(f"{status.user_id_seller} wants to trade {status.amount} {status.currency_name} to you")
+            return
+        else:
+            await interaction.response.send_message("Something went wrong! Please contact an admin for further assistance.")
+            return
+
+    '''# Send Mail to Sender
     async def trade_logic(interaction: discord.Interaction):
         # Grab Stasis
         stasis = Stasis.select().where(Stasis.user_id_receiver == interaction.user.id).where(Stasis.completed == False).get()
@@ -621,14 +747,14 @@ async def mail(interaction: discord.Interaction):
         # Check if gate is complete
         if gate.stage == 1:
             # Grab Sender Profile
-            sender_profile = Profiles.select().where(Profiles.user_id == stasis.user_id_sender).where(Profiles.server_id == interaction.guild.id).get()
+            sender_profile = Profiles.select().where(Profiles.user_id == stasis.user_id_customer).where(Profiles.server_id == interaction.guild.id).get()
             # Grab Receiver Profile
             receiver_profile = Profiles.select().where(Profiles.user_id == interaction.user.id).where(Profiles.server_id == interaction.guild.id).get()
             # Update Receiver Profile
             receiver_profile.amount += stasis.amount
             receiver_profile.save()
             # Create Trade
-            Trades.create(user_id_sender=stasis.user_id_sender, user_id_receiver=interaction.user.id, currency_name=stasis.currency_name, amount=stasis.amount)
+            Trades.create(user_id_customer=stasis.user_id_customer, user_id_receiver=interaction.user.id, currency_name=stasis.currency_name, amount=stasis.amount)
             # Update Stasis
             stasis.completed = True
             stasis.save()
@@ -637,7 +763,7 @@ async def mail(interaction: discord.Interaction):
             return
         elif gate.stage == 2:
             # Grab Sender Profile
-            sender_profile = Profiles.select().where(Profiles.user_id == stasis.user_id_sender).where(Profiles.server_id == interaction.guild.id).get()
+            sender_profile = Profiles.select().where(Profiles.user_id == stasis.user_id_customer).where(Profiles.server_id == interaction.guild.id).get()
             # Grab Receiver Profile
             receiver_profile = Profiles.select().where(Profiles.user_id == interaction.user.id).where(Profiles.server_id == interaction.guild.id).get()
             # Update Sender Profile
@@ -651,10 +777,7 @@ async def mail(interaction: discord.Interaction):
             return
         else:
             await mail_ticket_channel.send("Something went wrong!")
-            return
-
-    for status in stasis:
-        await mail_ticket_channel.send(f"{status.user_id_sender} wants to trade {status.amount} {status.currency_name} to you", view=confirmation(trade_logic, interaction=interaction))
+            return'''
 
 @bot.event
 async def on_member_join(member: discord.Member):
