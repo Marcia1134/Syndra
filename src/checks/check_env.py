@@ -1,10 +1,10 @@
 from os import getenv
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv('.env')
 
 def main() -> None:
-    token = getenv("DISCORD_TOKEN")
+    token = getenv("TOKEN")
     if token is None:
         raise ValueError("DISCORD_TOKEN is not set")
         return
