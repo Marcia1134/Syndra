@@ -1,10 +1,11 @@
 # Main File
 
-import startup
+import checks
+import bot
 
-if '__name__' == '__main__':
-    print("imported startup package")
-    print("Main File")
-    startup.main()
+if __name__ == '__main__':
+    print('Main File')
+    checks.env()
+    bot.main()
 
-# Path: src/startup/__init__.py
+# Path: src/main.py
