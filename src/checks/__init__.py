@@ -1,7 +1,7 @@
 from checks import check_env
+import ease
 
 def env():
-    print('Checking Environment Variables')
     try:
         check_env.main()
     except ValueError as e:

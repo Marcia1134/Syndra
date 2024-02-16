@@ -12,3 +12,5 @@ class OnReady(commands.Cog):
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(OnReady(bot))
+
+# Path: src/events/on_ready.py
