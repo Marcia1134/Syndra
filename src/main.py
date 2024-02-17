@@ -15,6 +15,7 @@ if __name__ == '__main__':
     ease.print_line()
 
     checks.env()
+    checks.db()
     bot.main()
 
 # Path: src/main.py

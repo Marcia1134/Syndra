@@ -4,11 +4,11 @@ from dotenv import load_dotenv
 load_dotenv('config.env')
 
 def main() -> None:
-    if getenv("VERBOSE") == "True":
+    if getenv("DEBUG") == "True":
         with open('config.env', 'r') as file:
             for line in file:
                 print(line.strip())
-    if getenv("VERBOSE") == "True":
+    if getenv("DEBUG") == "True":
         print("Checking environment variables...")
     token = getenv("TOKEN")
     if token is None:
@@ -23,7 +23,7 @@ def main() -> None:
     if len(token) > 100:
         raise ValueError("DISCORD_TOKEN is too long")
         return
-    if getenv("VERBOSE") == "True":
+    if getenv("DEBUG") == "True":
         print("DISCORD_TOKEN is set correctly")
 
 # Path: src/checks/check_env.py

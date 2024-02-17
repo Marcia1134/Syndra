@@ -1,9 +1,15 @@
-from checks import check_env
-import ease
+from checks import check_env, check_db
 
 def env():
     try:
         check_env.main()
+    except ValueError as e:
+        print(e)
+        exit(1)
+
+def db():
+    try:
+        check_db.main()
     except ValueError as e:
         print(e)
         exit(1)

@@ -15,7 +15,7 @@ def main() -> None:
     bot = Bot(intents=Intents.all(), command_prefix=getenv("_")) # Create Bot
 
     bot.verbose = False
-    if getenv("VERBOSE") == "True":
+    if getenv("DEBUG") == "True":
         bot.verbose = True
         print('Verbose Mode: ON')
     else:
@@ -27,7 +27,7 @@ def main() -> None:
         print(f'Version: {bot.version}')
         print(f'Python Version: {sys.version}')
         print(f'PIP Version: {pip.__version__}')
-        print('Discord.py Version: {}'.format(pip.get_installed_distributions()[0].version))
+        # print('Discord.py Version: {}'.format(pip.get_installed_distributions()[0].version))
 
     ease.print_line()
 

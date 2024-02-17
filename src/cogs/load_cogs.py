@@ -31,5 +31,12 @@ async def main(bot : Bot, reload : bool = False) -> None:
             print(f'Loaded {cog}')
         except Exception as e:
             print(f'Failed to load {cog}\n{e}')
+            if reload:
+                try:
+                    await bot.load_extension(f'cogs.{cog[:-3]}')
+                except Exception as e:
+                    print(f'Failed to reload {cog}\n{e}')
+                else:
+                    print(f'loaded {cog}')
 
 # Path: src/cogs/load_cogs.py

@@ -2,6 +2,8 @@ import discord
 from discord import ui
 from discord import app_commands
 from discord.ext import commands
+from server_setup import *
+import database
 
 class SetupView(ui.View):
     def __init__(self) -> None:
@@ -9,7 +11,13 @@ class SetupView(ui.View):
 
     @ui.button(label="Setup", style=discord.ButtonStyle.blurple, custom_id="setup")
     async def setup(self, interaction: discord.Interaction, button: ui.Button) -> None:
-        await interaction.response.send_message("Setup your server")
+        server = database.tables.Server.get_or_none(id=str(interaction.guild_id))
+        if server is not None:
+            await interaction.response.send_message("This Server has already been set up. You may use the /manageserver command!", ephemeral=True)
+            return
+        
+        database.tables.Server.create(id=str(interaction.guild_id))
+        await interaction.response.send_message(f"Server has been set up!  \nYour Server ID is: {database.tables.Server.get_by_id(interaction.guild_id)}", ephemeral=True)
 
 class SetupEmbed(discord.Embed):
     def __init__(self, bot : commands.bot) -> None:
