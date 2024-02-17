@@ -1,7 +1,7 @@
 import discord
 from discord import ui
 from discord.ext import commands
-from server_setup import *
+from server_setup import ROLEPAY
 from database import tables
 
 # Define a custom modal for currency setup
@@ -36,6 +36,9 @@ class CurrencyModal(ui.Modal):
         # Send a response message with the entered currency details
         await interaction.response.send_message(f"Currency Name: {currency_name}\nCurrency Symbol: {currency_symbol}", ephemeral=True)
 
+        if not self.bot.verbose:
+            print(f"Currency {currency_name} has been added to server {interaction.guild_id}")
+
 # Define a custom view for server setup
 class SetupView(ui.View):
     def __init__(self, bot) -> None:
@@ -52,6 +55,8 @@ class SetupView(ui.View):
 
         # Open the currency setup modal
         await interaction.response.send_modal(CurrencyModal(self.bot))
+        if self.bot.verbose:
+            print(f"Currency Modal initialized for server {interaction.guild_id}")
 
 # Define a custom embed for server setup
 class SetupEmbed(discord.Embed):
@@ -65,6 +70,6 @@ class SetupEmbed(discord.Embed):
 
         self.set_footer(text=f"Syndra Version {bot.version}")
 
-        self.add_field(name="Prefix", value="Set the prefix for your server")
-        self.add_field(name="Channel", value="Set the channel for your server")
-        self.add_field(name="Role", value="Set the role for your server")
+        self.add_field(name="Currency", value="Set the Currency for your Server! \n\nYou will need to set the Currency Name and Symbol! (eg. USD, $)", inline=False)
+
+        self.add_field(name="Role Pay", value="Set Role Pay.. Click the button to learn more!", inline=False)
