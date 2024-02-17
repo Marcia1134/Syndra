@@ -20,4 +20,6 @@ def main() -> None:
         print(f"An error occurred: {e}")
     else:
         if getenv("DEBUG") == "True":
-            print("Database created successfully")            
+            print("Database created successfully")          
+
+    db.close()  

@@ -1,12 +1,13 @@
 import peewee as pw
-from database import tables, create_database
+import os
 
 def delete_database() -> None:
-    db = pw.SqliteDatabase(database='syndra.db')
-    db.connect()
-
-    # Drop all tables
-    db.drop_tables([tables.Server], safe=True, cascade=True)
-
-    # Create all tables
-    create_database.create_database()
+    # Delete the database
+    if os.path.exists('syndra.db'):
+        try:
+            os.remove('syndra.db')
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(f"An error occurred: {e}\n\nContinuing anyway...")
+            pass
