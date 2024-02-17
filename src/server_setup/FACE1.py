@@ -58,6 +58,13 @@ class SetupView(ui.View):
         if self.bot.verbose:
             print(f"Currency Modal initialized for server {interaction.guild_id}")
 
+    @ui.button(label="Role Pay Setup", custom_id="rolepay")
+    async def rolepay(self, interaction: discord.Interaction, button: ui.Button) -> None:
+        # Open the role pay setup modal
+        await interaction.response.edit_message(embeds=[ROLEPAY.RPEmbed(self.bot)], view=ROLEPAY.RPView(self.bot))
+        if self.bot.verbose:
+            print(f"Role Pay Modal initialized for server {interaction.guild_id}")
+
 # Define a custom embed for server setup
 class SetupEmbed(discord.Embed):
     def __init__(self, bot : commands.bot) -> None:
@@ -71,5 +78,4 @@ class SetupEmbed(discord.Embed):
         self.set_footer(text=f"Syndra Version {bot.version}")
 
         self.add_field(name="Currency", value="Set the Currency for your Server! \n\nYou will need to set the Currency Name and Symbol! (eg. USD, $)", inline=False)
-
         self.add_field(name="Role Pay", value="Set Role Pay.. Click the button to learn more!", inline=False)

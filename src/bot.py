@@ -4,6 +4,7 @@ from os import getenv
 from dotenv import load_dotenv
 from cogs import load_cogs
 from events import load_events
+from groups import load_groups
 from asyncio import run
 import sys
 import pip
@@ -35,6 +36,7 @@ def main() -> None:
         print('Checking environment variables...')
     run(load_cogs.main(bot)) # Load Cogs
     run(load_events.main(bot)) # Load Events
+    run(load_groups.main(bot)) # Reload Cogs
 
     ease.print_line()
 

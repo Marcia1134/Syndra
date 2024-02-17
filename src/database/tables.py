@@ -52,3 +52,15 @@ class Transaction(BaseModel):
     amount = pw.FloatField()
     date = pw.DateTimeField()
     description = pw.TextField()
+
+class RolePay(BaseModel):
+    '''
+    id : INT : PRIMARY KEY
+    server : INT : FOREIGN KEY
+    role : INT : FOREIGN KEY
+    amount : FLOAT
+    '''
+    id = pw.AutoField(primary_key=True)
+    server = pw.ForeignKeyField(Server, backref='rolepay')
+    role = pw.IntegerField()
+    amount = pw.FloatField()
