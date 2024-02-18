@@ -27,12 +27,14 @@ class Currency(BaseModel):
 
 class Wallet(BaseModel):
     '''
-    id : INT : PRIMARY KEY
+    wallet_ref_num : INT : PRIMARY KEY
+    id : INT
     server : INT : FOREIGN KEY
     currency : INT : FOREIGN KEY
     balance : FLOAT
     '''
-    id = pw.IntegerField(primary_key=True)
+    wallet_ref_num = pw.AutoField(primary_key=True)
+    id = pw.IntegerField(primary_key=False)
     server = pw.ForeignKeyField(Server, backref='wallet')
     currency = pw.ForeignKeyField(Currency, backref='wallet')
     balance = pw.FloatField()

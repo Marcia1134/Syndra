@@ -25,10 +25,14 @@ class BalanceCommand(commands.Cog):
             # Send a response message with the user's wallets
             message = "Your wallets are:\n"
             for wallet in wallets:
-                message += f"{tables.Currency.select().where(tables.Server.id == wallet.server).get().name}: {tables.Currency.select().where(tables.Currency.id == wallet.currency).get().symbol} {wallet.balance}\n"
+                if self.bot.verbose:
+                    print(f"Wallet: {wallet.id} {wallet.server} {wallet.currency} {wallet.balance}")
+                message += f"{tables.Currency.select().where(tables.Currency.server == wallet.server).get().name} : {tables.Currency.select().where(tables.Currency.id == wallet.currency).get().symbol} {wallet.balance}\n"
             await interaction.response.send_message(message, ephemeral=True)
         else:
             # Send a response message with the user's wallet
+            if self.bot.verbose:
+                print(f"Wallet: {wallet.id} {wallet.server} {wallet.currency} {wallet.balance}")
             await interaction.response.send_message(f"Your balance is {tables.Currency.select().where(tables.Currency.id == wallet.currency).get().symbol} {wallet.balance}", ephemeral=True)
 
 async def setup(bot: commands.Bot) -> None:
