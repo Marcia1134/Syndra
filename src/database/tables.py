@@ -44,6 +44,7 @@ class Transaction(BaseModel):
     id : INT : PRIMARY KEY
     sender : INT : FOREIGN KEY
     receiver : INT : FOREIGN KEY
+    currency : INT : FOREIGN KEY
     amount : FLOAT
     date : DATETIME
     description : TEXT
@@ -51,6 +52,7 @@ class Transaction(BaseModel):
     id = pw.AutoField(primary_key=True)
     sender = pw.ForeignKeyField(Wallet, backref='transaction')
     receiver = pw.ForeignKeyField(Wallet, backref='transaction')
+    currency = pw.ForeignKeyField(Currency, backref='transaction')
     amount = pw.FloatField()
     date = pw.DateTimeField()
     description = pw.TextField()
@@ -66,3 +68,16 @@ class RolePay(BaseModel):
     server = pw.ForeignKeyField(Server, backref='rolepay')
     role = pw.IntegerField()
     amount = pw.FloatField()
+
+class Mail(BaseModel):
+    '''
+    id : INT : PRIMARY KEY
+    wallet : INT : FOREIGN KEY
+    transaction : INT : FOREIGN KEY
+    read : BOOLEAN
+    '''
+    id = pw.AutoField(primary_key=True)
+    recipient = pw.IntegerField()
+    wallet = pw.ForeignKeyField(Wallet, backref='mail')
+    transaction = pw.ForeignKeyField(Transaction, backref='mail')
+    read = pw.BooleanField()

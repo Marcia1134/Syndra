@@ -7,6 +7,6 @@ def create_database() -> None:
     db.connect()
 
     print("Creating tables...")
-    db.create_tables([Server, Currency, Wallet, Transaction, RolePay])
+    db.create_tables([Server, Currency, Wallet, Transaction, RolePay, Mail])
 
     db.close()
