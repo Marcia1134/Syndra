@@ -81,3 +81,15 @@ class Mail(BaseModel):
     wallet = pw.ForeignKeyField(Wallet, backref='mail')
     transaction = pw.ForeignKeyField(Transaction, backref='mail')
     read = pw.BooleanField()
+
+class MailChannel(BaseModel):
+    '''
+    id : INT : PRIMARY KEY
+    recipient : INT : FOREIGN KEY
+    server : INT : FOREIGN KEY
+    channel : INT : FOREIGN KEY
+    '''
+    id = pw.AutoField(primary_key=True)
+    recipient = pw.IntegerField()
+    server = pw.ForeignKeyField(Server, backref='mailchannel')
+    channel = pw.IntegerField()
