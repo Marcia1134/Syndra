@@ -1,6 +1,6 @@
 from discord import app_commands
 from discord.ext import commands
-from cogs import load_cogs
+from load_scripts import load_cogs
 
 class ReloadCogs(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:

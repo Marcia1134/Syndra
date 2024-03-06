@@ -2,9 +2,9 @@ from discord.ext.commands import Bot
 from discord import Intents
 from os import getenv 
 from dotenv import load_dotenv
-from cogs import load_cogs
-from events import load_events
-from groups import load_groups
+from load_scripts import load_cogs
+from load_scripts import load_events
+from load_scripts import load_groups
 from asyncio import run
 import sys
 import pip
