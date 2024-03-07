@@ -21,6 +21,6 @@ def delete_database() -> None:
 
     if os.path.exists('syndra.db'):
         print("DB still present... Calling error and stopping code.")
-        exit
+        exit(3)
     else:
         print("All seems good, continuing...")

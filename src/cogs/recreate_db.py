@@ -10,7 +10,7 @@ class ReDBCommand(commands.Cog):
     @app_commands.command(name="redb", description="Recreate Database")
     async def redb(self, interaction : Interaction) -> None:
         await interaction.response.send_message("Deleteing all tables and recreating DB", ephemeral=True)
-        database.delete_db()
+        database.recreate_db()
         print(f"Database Recreated")
     
 async def setup(bot: commands.Bot) -> None:

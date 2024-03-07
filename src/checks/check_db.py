@@ -1,25 +1,13 @@
 import peewee as pw
 import database
 from dotenv import load_dotenv
-from os import getenv
+import os
 
 load_dotenv('config.env')
 
 def main() -> None:
-    db = pw.SqliteDatabase(database='syndra.db')
-    db.connect()
-
-    try:
-        database.create_db()
-    except pw.OperationalError:
-        if getenv("DEBUG") == "True":
-            if input("Database already exists. Do you want to delete it? [y/n]: ").lower() == "y":
-                database.delete_database.delete_database()
-                database.create_database.create_database()
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    if os.path.exists("syndra.db"):
+        print("database exists! continuing...")
     else:
-        if getenv("DEBUG") == "True":
-            print("Database created successfully")          
-
-    db.close()  
+        print("database does not exist! Stopping Bot and starting recovery script...")
+        exit(2)
