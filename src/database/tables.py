@@ -1,7 +1,6 @@
 import peewee as pw
 
 db = pw.SqliteDatabase(database='syndra.db')
-db.connect()
 
 class BaseModel(pw.Model):
     class Meta:
