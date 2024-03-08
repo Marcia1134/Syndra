@@ -8,7 +8,7 @@ from load_scripts import load_groups
 from asyncio import run
 import sys
 import pip
-import ease
+from ease import print_line
 
 load_dotenv('config.env')
 
@@ -22,15 +22,14 @@ def main() -> None:
     else:
         print('Verbose Mode: OFF')
 
-    bot.version = "0.1.BETA"
+    bot.version = "0.1.1.1"
 
     if bot.verbose:
         print(f'Version: {bot.version}')
         print(f'Python Version: {sys.version}')
         print(f'PIP Version: {pip.__version__}')
-        # print('Discord.py Version: {}'.format(pip.get_installed_distributions()[0].version))
 
-    ease.print_line()
+    print_line()
 
     if bot.verbose == False:
         print('Checking environment variables...')
@@ -38,7 +37,7 @@ def main() -> None:
     run(load_events.main(bot)) # Load Events
     run(load_groups.main(bot)) # Reload Cogs
 
-    ease.print_line()
+    print_line()
 
     bot.run(getenv("TOKEN"))
 
