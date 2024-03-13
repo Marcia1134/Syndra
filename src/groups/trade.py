@@ -17,11 +17,11 @@ class TradeCommandGroup(app_commands.Group):
     async def trade_request(self, interaction: discord.Interaction, reciever: discord.User, product_id: int):
         await trade.MTR(bot=self.bot, 
                   interaction=interaction, 
-                  sender=interaction.user, 
+                  sender=interaction.author.id, 
                   reciever=reciever, 
                   product_id=product_id)
     
-    @app_commands.command(name="view", description="List all of the requests made to you.")
+'''    @app_commands.command(name="view", description="List all of the requests made to you.")
     async def trade_view(self, interaction: discord.Interaction):
         await interaction.response.send_message("Trade [View] command used")
     
@@ -39,7 +39,7 @@ class TradeCommandGroup(app_commands.Group):
 
     @app_commands.command(name="status", description="Check the status of a trade request.")
     async def trade_status(self, interaction: discord.Interaction):
-        await interaction.response.send_message("Trade [Status] command used")
+        await interaction.response.send_message("Trade [Status] command used")'''
 
 async def setup(bot: commands.Bot) -> None:
     bot.tree.add_command(TradeCommandGroup(name="trade_request", description="Trading Commands"))

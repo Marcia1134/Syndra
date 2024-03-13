@@ -41,9 +41,12 @@ class Wallet(BaseModel):
 class Product(BaseModel):
     '''
     id : INT : PRIMARY KEY
+    owner : INT : FOREIGN KEY
     name : TEXT
     description : TEXT
     price : FLOAT
+    is_active : BOOLEAN
+    stock : INT
     '''
     id = pw.AutoField(primary_key=True)
     owner = pw.ForeignKeyField(Wallet, backref='product')
