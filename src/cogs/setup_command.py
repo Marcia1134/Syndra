@@ -11,7 +11,7 @@ class SetupCommand(commands.Cog):
     async def setup(self, interaction : discord.Interaction) -> None:
 
         # Check for admin permissions
-        if not interaction.author.guild_permissions.administrator:
+        if not interaction.user.guild_permissions.administrator:
             await interaction.response.send_message("You don't have the required permissions")
             return
 

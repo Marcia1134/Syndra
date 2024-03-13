@@ -15,7 +15,7 @@ class RPGroup(app_commands.Group):
     @app_commands.command(name="add", description="Add a new role pay entry")
     async def add(self, interaction : Interaction, role : str, amount : int) -> None:
         # Check for admin permissions
-        if not interaction.author.guild_permissions.administrator:
+        if not interaction.user.guild_permissions.administrator:
             await interaction.response.send_message("You don't have the required permissions")
             return
 
@@ -30,7 +30,7 @@ class RPGroup(app_commands.Group):
     @app_commands.command(name="remove", description="Remove a role pay entry")
     async def remove(self, interaction : Interaction, role : str) -> None:
         # Check for admin permissions
-        if not interaction.author.guild_permissions.administrator:
+        if not interaction.user.guild_permissions.administrator:
             await interaction.response.send_message("You don't have the required permissions")
             return
 
@@ -51,7 +51,7 @@ class RPGroup(app_commands.Group):
     @app_commands.command(name="list", description="List all role pay entries")
     async def list(self, interaction : Interaction) -> None:
         # Check for admin permissions
-        if not interaction.author.guild_permissions.administrator:
+        if not interaction.user.guild_permissions.administrator:
             await interaction.response.send_message("You don't have the required permissions")
             return
 
@@ -71,7 +71,7 @@ class RPGroup(app_commands.Group):
     @app_commands.command(name="edit", description="Edit a role pay entry")
     async def edit(self, interaction : Interaction, role : str, amount : int) -> None:
         # Check for admin permissions
-        if not interaction.author.guild_permissions.administrator:
+        if not interaction.user.guild_permissions.administrator:
             await interaction.response.send_message("You don't have the required permissions")
             return
 
@@ -95,7 +95,7 @@ class RPGroup(app_commands.Group):
     @app_commands.command(name="pay", description="Pay all role pay entries")
     async def pay(self, interaction : Interaction) -> None:
         # Check for admin permissions
-        if not interaction.author.guild_permissions.administrator:
+        if not interaction.user.guild_permissions.administrator:
             await interaction.response.send_message("You don't have the required permissions")
             return
 
