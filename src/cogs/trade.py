@@ -50,7 +50,8 @@ class TradeCommand(commands.Cog):
         try:
             reciever_wallet = Wallet.get(Wallet.id == reciever.id, Wallet.currency_id == currency)
         except:
-            await interaction.response.send_message(f"{reciever.mention} doesn't have a wallet.")
+            # create wallet if it doesn't exist
+            reciever_wallet = Wallet.create(id=reciever.id, server=interaction.guild_id, currency_id=currency, balance=0)
             return
         
         print("pass 4")

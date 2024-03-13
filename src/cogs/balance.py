@@ -11,7 +11,7 @@ class BalanceCommand(commands.Cog):
         # Check if the user has a balance entry
         wallet = tables.Wallet.get_or_none(id=interaction.user.id, server=interaction.guild_id)
         if wallet is None:
-            await interaction.response.send_message("You don't have a wallet entry")
+            wallet = tables.Wallet.create(id=interaction.user.id, server=interaction.guild_id, currency=tables.Currency.select().where(tables.Currency.server == interaction.guild_id).get(), balance=0)
             return
 
         # Check if the user wants to list all wallets
