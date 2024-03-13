@@ -15,7 +15,7 @@ class BalanceCommand(commands.Cog):
             return
 
         def embed_builder(wallet):
-            return Embed(title=f"{wallet.currency.name}", description=f"Your balance is {wallet.balance} {wallet.currency.symbol}")
+            return Embed(title=f"{wallet.currency.name}", description=f"Your balance is {wallet.currency.symbol} {wallet.balance}")
         
         class FlipBook(ui.View):
             def __init__(self, ListOfWallets, server_id, user_id):
