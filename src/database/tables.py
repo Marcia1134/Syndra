@@ -41,6 +41,7 @@ class Wallet(BaseModel):
 class Product(BaseModel):
     '''
     id : INT : PRIMARY KEY
+    emoji : TEXT
     owner : INT : FOREIGN KEY
     name : TEXT
     description : TEXT
@@ -49,6 +50,7 @@ class Product(BaseModel):
     stock : INT
     '''
     id = pw.AutoField(primary_key=True)
+    emoji = pw.TextField()
     owner = pw.ForeignKeyField(Wallet, backref='product')
     name = pw.TextField()
     description = pw.TextField()
@@ -108,3 +110,17 @@ class MailChannel(BaseModel):
     recipient = pw.IntegerField()
     server = pw.ForeignKeyField(Server, backref='mailchannel')
     channel = pw.IntegerField()
+
+class Roles(BaseModel):
+    '''
+    id : INT : PRIMARY KEY
+    server : INT : FOREIGN KEY
+    role : INT : FOREIGN KEY
+    type : INT
+        // 0: Shop
+        // 1: ...
+    '''
+    id = pw.AutoField(primary_key=True)
+    server = pw.ForeignKeyField(Server, backref='roles')
+    role = pw.IntegerField()
+    type = pw.IntegerField()
