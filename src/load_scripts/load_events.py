@@ -5,7 +5,7 @@ async def main(bot : Bot) -> None:
     if bot.verbose:
         print('Loading events...')
     ignore = ['load_events.py', '__init__.py', '__pycache__'] # Files to ignore
-    folder_path = '.src/events'
+    folder_path = './src/events'
 
     files = os.listdir(folder_path) # Get all files in the folder
 

@@ -5,7 +5,7 @@ async def main(bot : Bot, reload : bool = False) -> None:
     if bot.verbose:
         print('Loading groups...')
     ignore = ['load_groups.py', '__init__.py', '__pycache__'] # Files to ignore
-    folder_path = '.src/groups'
+    folder_path = './src/groups'
 
     files = os.listdir(folder_path) # Get all files in the folder
 
