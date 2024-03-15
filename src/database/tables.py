@@ -46,6 +46,7 @@ class Product(BaseModel):
     name : TEXT
     description : TEXT
     price : FLOAT
+    currency : INT : FOREIGN KEY
     is_active : BOOLEAN
     stock : INT
     '''
@@ -55,6 +56,7 @@ class Product(BaseModel):
     name = pw.TextField()
     description = pw.TextField()
     price = pw.FloatField()
+    currency = pw.ForeignKeyField(Currency, backref='product')
     is_active = pw.BooleanField()
     stock = pw.IntegerField() # -1 for infinite stock
 
@@ -124,3 +126,11 @@ class Roles(BaseModel):
     server = pw.ForeignKeyField(Server, backref='roles')
     role = pw.IntegerField()
     type = pw.IntegerField()
+
+class ShopChannels(BaseModel):
+    '''
+    channel_id : INT : PRIMARY KEY
+    server : INT : FOREIGN KEY
+    '''
+    channel_id = pw.IntegerField(primary_key=True)
+    server = pw.ForeignKeyField(Server, backref='shopchannels')

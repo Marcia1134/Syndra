@@ -18,6 +18,10 @@ class ProductEmbed(discord.Embed):
         self.add_field(name="Price", value=f"{product['price']} {product['currency']}")
         self.add_field(name="Stock", value=product['stock'], inline=False)
         self.add_field(name="Is Active", value=product['is_active'])
+        if product['is_active']:
+            self.color = discord.Color.green()
+        else:
+            self.color = discord.Color.red()
 
 class Set_Product_Name_Modal(ui.Modal):
     def __init__(self, product : dict):
@@ -27,7 +31,7 @@ class Set_Product_Name_Modal(ui.Modal):
 
         self.product_emoji = ui.TextInput(label="Item Emoji", default="📦", required=True)
         self.product_name = ui.TextInput(label="Item Name", placeholder="Enter Item Name", required=True)
-        self.product_description = ui.TextInput(label="Item Description", placeholder="Enter Item Description", required=True)
+        self.product_description = ui.TextInput(label="Item Description", placeholder="Enter Item Description", required=True, max_length=100, min_length=10, style=discord.TextStyle.paragraph)
         
         self.add_item(self.product_name)
         self.add_item(self.product_description)
@@ -105,17 +109,20 @@ class Set_Product_Stock_Modal(ui.Modal):
         return
 
 class CreateProductView(ui.View):
-    def __init__(self):
+    def __init__(self, product_info : dict = None):
         super().__init__(timeout=None)
-        self.product_info = {
-            "emoji" : "📦",
-            "name" : "Place Holder Product Name",
-            "description" : "Place Holder Product Description",
-            "price" : 0,
-            "currency" : "???",
-            "is_active" : False,
-            "stock" : 0
-        }
+        if product_info == None:
+            self.product_info = {
+                "emoji" : "📦",
+                "name" : "Place Holder Product Name",
+                "description" : "Place Holder Product Description",
+                "price" : 0,
+                "currency" : "???",
+                "is_active" : False,
+                "stock" : 0
+            }
+        else:
+            self.product_info = product_info
 
     @ui.button(label="Item Name", emoji="📦", style=discord.ButtonStyle.green)
     async def set_product_name(self, interaction : discord.Interaction, button : ui.Button):
@@ -184,6 +191,7 @@ class CreateProductView(ui.View):
             name=self.product_info['name'],
             description=self.product_info['description'],
             price=self.product_info['price'],
+            currency=Currency.get(Currency.name == self.product_info['currency']),
             is_active=self.product_info['is_active'],
             stock=self.product_info['stock']
         )
@@ -194,20 +202,29 @@ class CreateProductView(ui.View):
         
         return
 
-async def create_product(interaction : discord.Interaction) -> None:
+async def create_product(interaction : discord.Interaction, product_info : dict = None) -> None:
     
-    await interaction.response.send_message(
+    if product_info != None:
+        await interaction.response.send_message(
         
-        embed=ProductEmbed({
-            "emoji" : "📦",
-            "name" : "Place Holder Product Name",
-            "description" : "Place Holder Product Description",
-            "price" : 0,
-            "currency" : "???",
-            "is_active" : False,
-            "stock" : 0
-            }),
+        embed=ProductEmbed(product_info),
      
-    view=CreateProductView())
+        view=CreateProductView(product_info))
+        return
+    else:
 
-    return
+        await interaction.response.send_message(
+            
+            embed=ProductEmbed({
+                "emoji" : "📦",
+                "name" : "Place Holder Product Name",
+                "description" : "Place Holder Product Description",
+                "price" : 0,
+                "currency" : "???",
+                "is_active" : False,
+                "stock" : 0
+                }),
+        
+        view=CreateProductView())
+
+        return
