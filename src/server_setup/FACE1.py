@@ -34,7 +34,7 @@ class CurrencyModal(ui.Modal):
             print(f"Currency {currency_name} has been added to server {interaction.guild_id}")
 
         # Send a response message with the entered currency details
-        await interaction.response.send_message(f"Currency Name: {currency_name}\nCurrency Symbol: {currency_symbol}", ephemeral=True)
+        await interaction.response.send_message(f"Currency Name: {currency_name}\nCurrency Symbol: {currency_symbol}")
 
         if not self.bot.verbose:
             print(f"Currency {currency_name} has been added to server {interaction.guild_id}")
@@ -50,7 +50,7 @@ class SetupView(ui.View):
         # Check if the server has already been set up
         server = tables.Server.get_or_none(id=str(interaction.guild_id))
         if server is not None:
-            await interaction.response.send_message("This Server has already been set up. You may use the /manageserver command!", ephemeral=True)
+            await interaction.response.send_message("This Server has already been set up. You may use the /manageserver command!")
             return
 
         # Open the currency setup modal

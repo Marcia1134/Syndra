@@ -5,7 +5,7 @@ async def main(bot : Bot, reload : bool = False) -> None:
     if bot.verbose:
         print('Loading cogs...')
     ignore = ['load_cogs.py', '__init__.py', '__pycache__'] # Files to ignore
-    folder_path = '/home/marcie/Documents/GitHub/Syndra/src/cogs'
+    folder_path = './src/cogs'
 
     files = os.listdir(folder_path) # Get all files in the folder
 

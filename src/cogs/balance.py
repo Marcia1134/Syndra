@@ -1,4 +1,4 @@
-from discord import app_commands, Interaction
+from discord import app_commands, Interaction, Embed, ui, ButtonStyle
 from discord.ext import commands
 from database import tables
 
@@ -6,34 +6,46 @@ class BalanceCommand(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name="bal", description="Check your balance")
-    async def balance(self, interaction : Interaction, list_all : bool = False) -> None:
+    @app_commands.command(name="wallet", description="Check your balance")
+    async def balance(self, interaction : Interaction) -> None:
         # Check if the user has a balance entry
         wallet = tables.Wallet.get_or_none(id=interaction.user.id, server=interaction.guild_id)
         if wallet is None:
-            await interaction.response.send_message("You don't have a wallet entry", ephemeral=True)
+            wallet = tables.Wallet.create(id=interaction.user.id, server=interaction.guild_id, currency=tables.Currency.select().where(tables.Currency.server == interaction.guild_id).get(), balance=0)
             return
 
-        # Check if the user wants to list all wallets
-        if list_all:
-            # Check if the user has a wallet entry
-            wallets = tables.Wallet.select().where(tables.Wallet.id == interaction.user.id)
-            if wallets.count() == 0:
-                await interaction.response.send_message("You don't have a wallet entry", ephemeral=True)
-                return
+        def embed_builder(wallet):
+            return Embed(title=f"{wallet.currency.name}", description=f"Your balance is {wallet.currency.symbol} {wallet.balance}")
+        
+        class FlipBook(ui.View):
+            def __init__(self, ListOfWallets, server_id, user_id):
+                super().__init__(timeout=None)
+                self.page = ListOfWallets.index(tables.Wallet.get(id=user_id, server=server_id))
+                self.ListOfWallets = ListOfWallets
 
-            # Send a response message with the user's wallets
-            message = "Your wallets are:\n"
-            for wallet in wallets:
-                if self.bot.verbose:
-                    print(f"Wallet: {wallet.id} {wallet.server} {wallet.currency} {wallet.balance}")
-                message += f"{tables.Currency.select().where(tables.Currency.server == wallet.server).get().name} : {tables.Currency.select().where(tables.Currency.id == wallet.currency).get().symbol} {wallet.balance}\n"
-            await interaction.response.send_message(message, ephemeral=True)
+            @ui.button(label="previous", style=ButtonStyle.primary, emoji="⬅️")
+            async def previous(self, interaction: Interaction, button: ui.Button):
+                if self.page == 0:
+                    self.page = len(self.ListOfWallets)
+                self.page -= 1
+                await interaction.response.edit_message(embed=embed_builder(self.ListOfWallets[self.page]))
+
+            @ui.button(label="next", style=ButtonStyle.primary, emoji="➡️")
+            async def next(self, interaction: Interaction, button: ui.Button):
+                if self.page == len(self.ListOfWallets) - 1:
+                    self.page = -1
+                self.page += 1
+                await interaction.response.edit_message(embed=embed_builder(self.ListOfWallets[self.page]))
+
+        # list of all currency interactor is connected to
+        ListOfWallets = list(tables.Wallet.select().where(tables.Wallet.id == interaction.user.id).execute())
+
+        print(ListOfWallets)
+
+        if len(ListOfWallets) == 1:
+            await interaction.response.send_message(embed=embed_builder(wallet))
         else:
-            # Send a response message with the user's wallet
-            if self.bot.verbose:
-                print(f"Wallet: {wallet.id} {wallet.server} {wallet.currency} {wallet.balance}")
-            await interaction.response.send_message(f"Your balance is {tables.Currency.select().where(tables.Currency.id == wallet.currency).get().symbol} {wallet.balance}", ephemeral=True)
+            await interaction.response.send_message(embed=embed_builder(wallet), view=FlipBook(ListOfWallets, interaction.guild_id, interaction.user.id))
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(BalanceCommand(bot))
