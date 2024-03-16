@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from database.tables import Server, Currency, CommandConfig, RoleCommandConfig
-from setup_app_data import first_time
+from setup_app_data import first_time, base1
 
 class SetupCommand(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -35,7 +35,8 @@ class SetupCommand(commands.Cog):
         # Check for existing setup
         server = Server.get_or_none(Server.id == interaction.guild.id)
         if server:
-            await interaction.response.send_message("Server already setup")
+            embed, view = base1.base1()
+            await interaction.response.send_message(embed=embed, view=view)
         else:
             command_overwrites = {
                 interaction.guild.default_role: discord.PermissionOverwrite( 

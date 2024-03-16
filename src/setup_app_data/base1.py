@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from database.tables import Server, Currency
-from setup_app_data import commands1
+from setup_app_data import commands1, role_perms1
 from typing import Tuple
 
 def base1() -> Tuple[discord.Embed, discord.ui.View]:
@@ -22,4 +22,7 @@ def base1() -> Tuple[discord.Embed, discord.ui.View]:
 
         @discord.ui.button(label="Roles", custom_id="roles")
         async def roles(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            ...
+            embed, view = role_perms1.RolePerms1(interaction)
+            interaction.response.send_message(embed=embed, view=view)
+
+    return SetupGuideEmbed, SetupView()
