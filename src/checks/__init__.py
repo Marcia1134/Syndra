@@ -1,4 +1,4 @@
-from checks import check_env, check_db
+from checks import check_env, check_db, check_db_commands
 
 def env():
     try:
@@ -10,6 +10,13 @@ def env():
 def db():
     try:
         check_db.main()
+    except ValueError as e:
+        print(e)
+        exit(1)
+
+def commands(commands):
+    try:
+        check_db_commands.main(commands=commands)
     except ValueError as e:
         print(e)
         exit(1)

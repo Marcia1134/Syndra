@@ -8,6 +8,12 @@ class BalanceCommand(commands.Cog):
 
     @app_commands.command(name="wallet", description="Check your balance")
     async def balance(self, interaction : Interaction) -> None:
+        
+        # Check if command is enabled in the server
+        if not tables.CommandConfig.get_or_none(server=interaction.guild_id, command=self.name).enabled:
+            await interaction.response.send_message("Command is disabled in this server! To enable it, contact an admin.")
+            return
+
         # Check if the user has a balance entry
         wallet = tables.Wallet.get_or_none(id=interaction.user.id, server=interaction.guild_id)
         if wallet is None:
