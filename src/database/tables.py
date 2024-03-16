@@ -82,7 +82,7 @@ class RolePay(BaseModel):
     '''
     id : INT : PRIMARY KEY
     server : INT : FOREIGN KEY
-    role : INT : FOREIGN KEY
+    role : INT
     amount : FLOAT
     '''
     id = pw.AutoField(primary_key=True)
@@ -115,5 +115,6 @@ class RoleCommandConfig(BaseModel):
     id : INT : PRIMARY KEY // Role ID
     command : TEXT : FOREIGN KEY
     '''
-    id = pw.IntegerField(primary_key=True)
+    point = pw.AutoField(primary_key=True)
+    id = pw.IntegerField()
     command = pw.ForeignKeyField(Commands, backref='rolecommandconfig')

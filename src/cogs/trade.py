@@ -19,15 +19,18 @@ class TradeCommand(commands.Cog):
     @app_commands.command(name="trade", description="Create a trade request.")
     async def trade_request(self, interaction: discord.Interaction, reciever: discord.User, amount : int):
 
+        self.name = "trade"
+
         # Check if command is enabled in the server
-        if not CommandConfig.get_or_none(server=interaction.guild_id, command=self.name).enabled:
-            await interaction.response.send_message("Command is disabled in this server! To enable it, contact an admin.")
-            return       
+        if CommandConfig.get_or_none(server=interaction.guild_id, command=self.name) != None:
+            if CommandConfig.get_or_none(server=interaction.guild_id, command=self.name).enabled == False:
+                await interaction.response.send_message("Command is disabled in this server! To enable it, contact an admin.")
+                return       
          
         # Check if the user is allowed to use the command (role)
         is_allowed = False
         for role in interaction.user.roles:
-            if RoleCommandConfig.get_or_none(role=role.id, command=self.name) != None:
+            if RoleCommandConfig.get_or_none(id=role.id, command=self.name) != None:
                 is_allowed = True
                 break
 

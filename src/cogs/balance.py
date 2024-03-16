@@ -9,15 +9,12 @@ class BalanceCommand(commands.Cog):
     @app_commands.command(name="wallet", description="Check your balance")
     async def balance(self, interaction : Interaction) -> None:
         
-        # Check if command is enabled in the server
-        if not tables.CommandConfig.get_or_none(server=interaction.guild_id, command=self.name).enabled:
-            await interaction.response.send_message("Command is disabled in this server! To enable it, contact an admin.")
-            return
+        self.name = 'wallet'
         
         # Check if the user is allowed to use the command (role)
         is_allowed = False
         for role in interaction.user.roles:
-            if tables.RoleCommandConfig.get_or_none(role=role.id, command=self.name) != None:
+            if tables.RoleCommandConfig.get_or_none(id=role.id, command=self.name) != None:
                 is_allowed = True
                 break
 

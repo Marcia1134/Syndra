@@ -1,3 +1,4 @@
+import discord
 from discord import app_commands, Interaction
 from discord.ext import commands
 from database import tables
@@ -13,17 +14,14 @@ if getenv("DEBUG") == "True":
 class RPGroup(app_commands.Group):
 
     @app_commands.command(name="add", description="Add a new role pay entry")
-    async def add(self, interaction : Interaction, role : str, amount : int) -> None:
+    async def add(self, interaction : Interaction, role : discord.Role, amount : int) -> None:
 
-        # Check if command is enabled in the server
-        if not tables.CommandConfig.get_or_none(server=interaction.guild_id, command=self.name).enabled:
-            await interaction.response.send_message("Command is disabled in this server! To enable it, contact an admin.")
-            return
+        self.name = 'rp'
 
         # Check if the user is allowed to use the command (role)
         is_allowed = False
         for role in interaction.user.roles:
-            if tables.RoleCommandConfig.get_or_none(role=role.id, command=self.name) != None:
+            if tables.RoleCommandConfig.get_or_none(id=role.id, command=self.name) != None:
                 is_allowed = True
                 break
 
@@ -37,25 +35,22 @@ class RPGroup(app_commands.Group):
             return
 
         # Create a new role pay entry in the database
-        tables.RolePay.create(server=tables.Server.get_by_id(interaction.guild_id), role=role, amount=amount)
+        tables.RolePay.create(server=tables.Server.get_by_id(interaction.guild_id), role=role.id, amount=amount)
         if verbose:
-            print(f"Role {role} has been added to server {interaction.guild_id}")
+            print(f"Role {role.name} has been added to server {interaction.guild_id}")
 
         # Send a response message with the entered role pay details
-        await interaction.response.send_message(f"Role: {role}\nAmount: {amount}")
+        await interaction.response.send_message(f"Role: {role.name}\nAmount: {amount}")
 
     @app_commands.command(name="remove", description="Remove a role pay entry")
     async def remove(self, interaction : Interaction, role : str) -> None:
 
-        # Check if command is enabled in the server
-        if not tables.CommandConfig.get_or_none(server=interaction.guild_id, command=self.name).enabled:
-            await interaction.response.send_message("Command is disabled in this server! To enable it, contact an admin.")
-            return
+        self.name = 'rp'
 
         # Check if the user is allowed to use the command (role)
         is_allowed = False
         for role in interaction.user.roles:
-            if tables.RoleCommandConfig.get_or_none(role=role.id, command=self.name) != None:
+            if tables.RoleCommandConfig.get_or_none(id=role.id, command=self.name) != None:
                 is_allowed = True
                 break
 
@@ -85,15 +80,12 @@ class RPGroup(app_commands.Group):
     @app_commands.command(name="list", description="List all role pay entries")
     async def list(self, interaction : Interaction) -> None:
 
-        # Check if command is enabled in the server
-        if not tables.CommandConfig.get_or_none(server=interaction.guild_id, command=self.name).enabled:
-            await interaction.response.send_message("Command is disabled in this server! To enable it, contact an admin.")
-            return
+        self.name = 'rp'
 
         # Check if the user is allowed to use the command (role)
         is_allowed = False
         for role in interaction.user.roles:
-            if tables.RoleCommandConfig.get_or_none(role=role.id, command=self.name) != None:
+            if tables.RoleCommandConfig.get_or_none(id=role.id, command=self.name) != None:
                 is_allowed = True
                 break
 
@@ -122,15 +114,12 @@ class RPGroup(app_commands.Group):
     @app_commands.command(name="edit", description="Edit a role pay entry")
     async def edit(self, interaction : Interaction, role : str, amount : int) -> None:
         
-        # Check if command is enabled in the server
-        if not tables.CommandConfig.get_or_none(server=interaction.guild_id, command=self.name).enabled:
-            await interaction.response.send_message("Command is disabled in this server! To enable it, contact an admin.")
-            return
+        self.name = 'rp'
         
         # Check if the user is allowed to use the command (role)
         is_allowed = False
         for role in interaction.user.roles:
-            if tables.RoleCommandConfig.get_or_none(role=role.id, command=self.name) != None:
+            if tables.RoleCommandConfig.get_or_none(id=role.id, command=self.name) != None:
                 is_allowed = True
                 break
 
@@ -163,15 +152,12 @@ class RPGroup(app_commands.Group):
     @app_commands.command(name="pay", description="Pay all role pay entries")
     async def pay(self, interaction : Interaction) -> None:
         
-        # Check if command is enabled in the server
-        if not tables.CommandConfig.get_or_none(server=interaction.guild_id, command=self.name).enabled:
-            await interaction.response.send_message("Command is disabled in this server! To enable it, contact an admin.")
-            return
+        self.name = 'rp'
         
         # Check if the user is allowed to use the command (role)
         is_allowed = False
         for role in interaction.user.roles:
-            if tables.RoleCommandConfig.get_or_none(role=role.id, command=self.name) != None:
+            if tables.RoleCommandConfig.get_or_none(id=role.id, command=self.name) != None:
                 is_allowed = True
                 break
 
