@@ -1,33 +1,33 @@
 # The Syndra Project
 
-Syndra, The Open Source Community Manager, that helps you get your ideas out into the world and bring together people who are ready to share their works. 
+Syndra, the open-source community manager, helps you get your ideas out into the world and bring together people who are ready to share their work. 
 
 ## What's the Syndra Project?
 
-Syndra is a portable monatization solution. We help communities create, better, higher quality content which anyone can support with ease. Syndra offers tools to creators specifically, to help outreach, growth and content development. We are a set off tools, focused on making the money side of creative arts, something you don't need to worry about. We are a trade center, a community broadcaster, a market place, plus so much more! Syndra is focusing on high customizablity and user expirence, trying to make sharing your work, easier and more finacially viable!
+Syndra is a portable monetization solution. We help communities create better, higher-quality content that anyone can support with ease. Syndra offers tools specifically designed for creators, to help with outreach, growth, and content development. We are a set of tools, focused on making the money side of creative arts, something you don't need to worry about. We are a trade center, a community broadcaster, a marketplace, plus so much more! Syndra is focusing on high customizability and user experience, trying to make sharing your work easier and more financially viable!
 
 ## What can we expect in the future?
 
-Syndra is at the begining stages right now, but we are off to a rocketing start! Coming soon to Syndra is intergration with third party monotinzation options, Offline Shopping and Trading, more advanced trading, and so much more! Our team is only comprised of one contracted developer at the moment, so things might not move like lighting, but we are working as fast as possible to push out quality updates! If you have to contribute or work on the project in any way, please let us know by sending us and email (contact info found below).
+Syndra is at the beginning stages right now, but we are off to a rocketing start! Coming soon to Syndra are integrations with third-party monetization options, offline shopping and trading, more advanced trading features, and so much more! Our team is only comprised of one contracted developer at the moment, so things might not move like lightning, but we are working as fast as possible to push out quality updates! If you'd like to contribute to or work on the project in any way, please let us know by sending us an email (contact info found below).
 
 ## SyndraBot V0.1
 
-The first offical Syndra Bot release is out now!
+The first official Syndra Bot release is out now!
 
-To try it, join one of our offical servers, otherwise if you wish to clone this GitHub Repo and work on things yourself... we have open sourced Syndra under the GNU License (please see LICENSE for more infomation). 
+To try it, join one of our official servers, otherwise if you wish to clone this GitHub repo and work on things yourself... we have open-sourced Syndra under the GNU License (please see LICENSE for more information). 
 
-List of Offical Syndra servers:
- - https://discord.gg/P3rApemhUc
- - https://discord.gg/MdH9kT3YEx
+List of Official Syndra servers:
+ - [https://discord.gg/P3rApemhUc](https://discord.gg/P3rApemhUc)
+ - [https://discord.gg/MdH9kT3YEx](https://discord.gg/MdH9kT3YEx)
  - More soon to come...
 
-If you want to become an offical representative of The Syndra Project, send us an email! (contact infomation found below)!  
+If you want to become an official representative of The Syndra Project, send us an email! (contact information found below)! 
 
 ## SyndraBot v0.2
 
-With this planned second release we plan to clean up the internal codebase, make things safer and faster, and add in more features to our Trade system. This expansion and rebasing will add to the user expirence and to the interactivity of Syndra! 
+With this planned second release we plan to clean up the internal codebase, make things safer and faster, and add in more features to our trade system. This expansion and rebasing will add to the user experience and to the interactivity of Syndra! 
 
 ## Contact information
 
-Offical Syndra Email - syndra@mikoschel.net
-Developer Email - mossmarcia1134+syndra@gmail.com
+Official Syndra Email - syndra@mikoschel.net
+Developer Email - mossmarcia1134+syndra@gmail.com 
