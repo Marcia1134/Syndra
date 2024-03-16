@@ -1,9 +1,13 @@
 from discord.ext.commands import Command
-from database.tables import Server, Commands
+from database.tables import Commands, CommandConfig
 from typing import List
+
+ingore = ['setup', 'wallet', 'rp']
 
 def main(commands : List[Command]) -> None:
     for command in commands:
+        if command.name in ingore:
+            continue
         if not Commands.select().where(Commands.command_name == command.name).exists():
             Commands.create(command_name=command.name)
     '''for command in Commands.select():

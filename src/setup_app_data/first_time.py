@@ -4,7 +4,7 @@ from discord.ext import commands
 from database.tables import Server, Currency
 from setup_app_data import *
 
-def modal(interaction : discord.Interaction) -> discord.ui.Modal:
+def modal() -> discord.ui.Modal:
     class SetupModal(discord.ui.Modal):
         def __init__(self):
             super().__init__(timeout=None, title="Currency Setup")
@@ -22,3 +22,5 @@ def modal(interaction : discord.Interaction) -> discord.ui.Modal:
             Server.create(id=interaction.guild_id)
             Currency.create(server=Server.get_by_id(interaction.guild_id), name=currency_name, value=currency_value, symbol=currency_symbol)
             await interaction.response.send_message(f"Currency Name: {currency_name}\nCurrency Value: {currency_value}\nCurrency Symbol: {currency_symbol}")
+
+    return SetupModal()

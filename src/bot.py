@@ -38,10 +38,15 @@ def main() -> None:
     run(load_events.main(bot)) # Load Events
     run(load_groups.main(bot)) # Reload Cogs
 
-    checks.commands(bot.commands)
+    checks.commands(bot.tree._get_all_commands())
+
+    for command in bot.tree._get_all_commands():
+        print(f'{command.name}')
 
     print_line()
 
     bot.run(getenv("TOKEN"))
+
+    
 
 # Path: src/bot.py

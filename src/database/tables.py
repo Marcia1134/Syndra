@@ -17,11 +17,13 @@ class Currency(BaseModel):
     id : INT : PRIMARY KEY
     server : INT : FOREIGN KEY
     name : TEXT
+    value : FLOAT
     symbol : TEXT
     '''
     id = pw.AutoField(primary_key=True)
     server = pw.ForeignKeyField(Server, backref='currency')
     name = pw.TextField()
+    value = pw.FloatField()
     symbol = pw.TextField()
 
 class Wallet(BaseModel):
@@ -113,3 +115,5 @@ class RoleCommandConfig(BaseModel):
     id : INT : PRIMARY KEY // Role ID
     command : TEXT : FOREIGN KEY
     '''
+    id = pw.IntegerField(primary_key=True)
+    command = pw.ForeignKeyField(Commands, backref='rolecommandconfig')

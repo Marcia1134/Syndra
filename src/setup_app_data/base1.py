@@ -18,7 +18,7 @@ def base1() -> Tuple[discord.Embed, discord.ui.View]:
 
         @discord.ui.button(label="commands", custom_id="commands")
         async def commands(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            interaction.response.send_message("select commands", view=commands1.commands1(commands))
+            interaction.response.send_message("select commands", view=commands1.commands1(commands=commands.bot.tree._get_all_commands()))
 
         @discord.ui.button(label="Roles", custom_id="roles")
         async def roles(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:

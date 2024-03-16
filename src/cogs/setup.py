@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from database.tables import Server, Currency, CommandConfig, RoleCommandConfig
+from setup_app_data import first_time
 
 class SetupCommand(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -36,7 +37,37 @@ class SetupCommand(commands.Cog):
         if server:
             await interaction.response.send_message("Server already setup")
         else:
-            ...
+            command_overwrites = {
+                interaction.guild.default_role: discord.PermissionOverwrite( 
+                    send_messages=True,
+                    read_message_history=False
+                ),
+                interaction.guild.me: discord.PermissionOverwrite(
+                    send_messages=True,
+                    read_message_history=True,
+                    manage_messages=True
+                )
+            }
+
+            speachless_overwrites = {
+                interaction.guild.default_role: discord.PermissionOverwrite(
+                    send_messages=False,
+                    read_message_history=False
+                ),
+                interaction.guild.me: discord.PermissionOverwrite(
+                    send_messages=True,
+                    read_message_history=True,
+                    manage_messages=True
+                )
+            }
+
+            await interaction.guild.create_category("Syndra")
+            await interaction.guild.create_text_channel("syndra-commands", overwrites=command_overwrites)
+            await interaction.guild.create_text_channel("syndra-trade", overwrites=speachless_overwrites)
+            await interaction.guild.create_text_channel("syndra-purchase", overwrites=speachless_overwrites)
+            await interaction.guild.create_text_channel("syndra-shop", overwrites=speachless_overwrites)
+
+            await interaction.response.send_modal(first_time.modal())
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(SetupCommand(bot))

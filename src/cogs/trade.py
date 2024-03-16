@@ -3,8 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 from dotenv import load_dotenv
 from os import getenv
-from database.tables import Wallet, Currency, Server, CommandConfig, RoleCommandConfig
-from datetime import datetime
+from database.tables import Wallet, Currency, CommandConfig, RoleCommandConfig
 
 load_dotenv('config.env')
 
