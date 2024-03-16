@@ -100,10 +100,16 @@ class CommandConfig(BaseModel):
     '''
     id : INT : PRIMARY KEY
     server : INT : FOREIGN KEY
-    command : INT : FOREIGN KEY
+    command : TEXT : FOREIGN KEY
     enabled : BOOLEAN
     '''
     id = pw.AutoField(primary_key=True)
     server = pw.ForeignKeyField(Server, backref='commandconfig')
     command = pw.ForeignKeyField(Commands, backref='commandconfig')
     enabled = pw.BooleanField()
+
+class RoleCommandConfig(BaseModel):
+    '''
+    id : INT : PRIMARY KEY // Role ID
+    command : TEXT : FOREIGN KEY
+    '''

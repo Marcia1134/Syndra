@@ -13,6 +13,17 @@ class BalanceCommand(commands.Cog):
         if not tables.CommandConfig.get_or_none(server=interaction.guild_id, command=self.name).enabled:
             await interaction.response.send_message("Command is disabled in this server! To enable it, contact an admin.")
             return
+        
+        # Check if the user is allowed to use the command (role)
+        is_allowed = False
+        for role in interaction.user.roles:
+            if tables.RoleCommandConfig.get_or_none(role=role.id, command=self.name) != None:
+                is_allowed = True
+                break
+
+        if not is_allowed:
+            await interaction.response.send_message("You are not allowed to use this command!")
+            return
 
         # Check if the user has a balance entry
         wallet = tables.Wallet.get_or_none(id=interaction.user.id, server=interaction.guild_id)
