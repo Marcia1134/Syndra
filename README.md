@@ -1,14 +1,14 @@
 # The Syndra Project
 
-Syndra is a communication assistant that helps connect communities based on items of creation! Syndra helps you, get your ideas out into the world, bringing together people who are ready to share their works. 
+Syndra, The Open Source Community Manager, that helps you get your ideas out into the world and bring together people who are ready to share their works. 
 
 ## What's the Syndra Project?
 
-Syndra is a portable monatization solution. We help communities create, better, higher quality content which anyone can support with ease. The Syndra Project is a set off tools, focused on making the money side of creative arts, something you don't need to worry about. We are a trade center, a community broadcaster, a market place, and so much more! We are focusing on high customizablity and user expirence, trying to make sharing your work, easier and more finacially viable then ever!
+Syndra is a portable monatization solution. We help communities create, better, higher quality content which anyone can support with ease. Syndra offers tools to creators specifically, to help outreach, growth and content development. We are a set off tools, focused on making the money side of creative arts, something you don't need to worry about. We are a trade center, a community broadcaster, a market place, plus so much more! Syndra is focusing on high customizablity and user expirence, trying to make sharing your work, easier and more finacially viable!
 
 ## What can we expect in the future?
 
-Syndra is at the begining stages right now, but we are off to a rocketing start! Coming soon to Syndra is intergration with third party monotinzation options, Offline Shopping and Trading, more advanced trading, and so much more! Our team is only comprised of one contracted developer at the moment, so things might not move like lighting, but we are working as fast as possible to push out quality updates! If you have to contribute or work on the project in any way, please let us know by sending us and email (vv contact info found below vv).
+Syndra is at the begining stages right now, but we are off to a rocketing start! Coming soon to Syndra is intergration with third party monotinzation options, Offline Shopping and Trading, more advanced trading, and so much more! Our team is only comprised of one contracted developer at the moment, so things might not move like lighting, but we are working as fast as possible to push out quality updates! If you have to contribute or work on the project in any way, please let us know by sending us and email (contact info found below).
 
 ## SyndraBot V0.1
 
