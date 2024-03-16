@@ -29,5 +29,6 @@ With this planned second release we plan to clean up the internal codebase, make
 
 ## Contact information
 
-Official Syndra Email - syndra@mikoschel.net
-Developer Email - mossmarcia1134+syndra@gmail.com 
+Emails:
+- Official Syndra Email - syndra@mikoschel.net
+- Developer Email - mossmarcia1134+syndra@gmail.com 
