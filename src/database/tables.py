@@ -38,7 +38,7 @@ class Wallet(BaseModel):
     currency = pw.ForeignKeyField(Currency, backref='wallet')
     balance = pw.FloatField()
 
-class Product(BaseModel):
+"""class Product(BaseModel):
     '''
     id : INT : PRIMARY KEY
     emoji : TEXT
@@ -58,9 +58,9 @@ class Product(BaseModel):
     price = pw.FloatField()
     currency = pw.ForeignKeyField(Currency, backref='product')
     is_active = pw.BooleanField()
-    stock = pw.IntegerField() # -1 for infinite stock
+    stock = pw.IntegerField() # -1 for infinite stock"""
 
-class Transaction(BaseModel):
+"""class Transaction(BaseModel):
     '''
     id : INT : PRIMARY KEY
     sender : INT : FOREIGN KEY
@@ -74,7 +74,7 @@ class Transaction(BaseModel):
     receiver = pw.ForeignKeyField(Wallet, backref='transaction')
     currency = pw.ForeignKeyField(Currency, backref='transaction')
     product_id = pw.ForeignKeyField(Product, backref='transaction')
-    date = pw.DateTimeField()
+    date = pw.DateTimeField()"""
 
 class RolePay(BaseModel):
     '''
@@ -88,49 +88,22 @@ class RolePay(BaseModel):
     role = pw.IntegerField()
     amount = pw.FloatField()
 
-class Mail(BaseModel):
+class Commands(BaseModel):
     '''
     id : INT : PRIMARY KEY
-    wallet : INT : FOREIGN KEY
-    transaction : INT : FOREIGN KEY
-    read : BOOLEAN
+    command_name : TEXT : UNIQUE
     '''
     id = pw.AutoField(primary_key=True)
-    recipient = pw.IntegerField()
-    wallet = pw.ForeignKeyField(Wallet, backref='mail')
-    transaction = pw.ForeignKeyField(Transaction, backref='mail')
-    read = pw.BooleanField()
+    command_name = pw.TextField(unique=True)
 
-class MailChannel(BaseModel):
-    '''
-    id : INT : PRIMARY KEY
-    recipient : INT : FOREIGN KEY
-    server : INT : FOREIGN KEY
-    channel : INT : FOREIGN KEY
-    '''
-    id = pw.AutoField(primary_key=True)
-    recipient = pw.IntegerField()
-    server = pw.ForeignKeyField(Server, backref='mailchannel')
-    channel = pw.IntegerField()
-
-class Roles(BaseModel):
+class CommandConfig(BaseModel):
     '''
     id : INT : PRIMARY KEY
     server : INT : FOREIGN KEY
-    role : INT : FOREIGN KEY
-    type : INT
-        // 0: Shop
-        // 1: ...
+    command : INT : FOREIGN KEY
+    enabled : BOOLEAN
     '''
     id = pw.AutoField(primary_key=True)
-    server = pw.ForeignKeyField(Server, backref='roles')
-    role = pw.IntegerField()
-    type = pw.IntegerField()
-
-class ShopChannels(BaseModel):
-    '''
-    channel_id : INT : PRIMARY KEY
-    server : INT : FOREIGN KEY
-    '''
-    channel_id = pw.IntegerField(primary_key=True)
-    server = pw.ForeignKeyField(Server, backref='shopchannels')
+    server = pw.ForeignKeyField(Server, backref='commandconfig')
+    command = pw.ForeignKeyField(Commands, backref='commandconfig')
+    enabled = pw.BooleanField()

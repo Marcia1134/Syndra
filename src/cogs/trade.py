@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 from dotenv import load_dotenv
 from os import getenv
-from database.tables import Wallet, Product, Mail, Transaction, Currency, Server
+from database.tables import Wallet, Currency, Server, CommandConfig
 from datetime import datetime
 
 load_dotenv('config.env')
@@ -20,6 +20,11 @@ class TradeCommand(commands.Cog):
     @app_commands.command(name="trade", description="Create a trade request.")
     async def trade_request(self, interaction: discord.Interaction, reciever: discord.User, amount : int):
         
+        # Check if command is enabled in the server
+        if not CommandConfig.get_or_none(server=interaction.guild_id, command=self.name).enabled:
+            await interaction.response.send_message("Command is disabled in this server! To enable it, contact an admin.")
+            return
+
         # Fetch currency 
         try:
             currency = Currency.get(Currency.server == interaction.guild.id)

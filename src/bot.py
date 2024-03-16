@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from load_scripts import load_cogs
 from load_scripts import load_events
 from load_scripts import load_groups
+import checks
 from asyncio import run
 import sys
 import pip
@@ -13,7 +14,7 @@ from ease import print_line
 load_dotenv('config.env')
 
 def main() -> None:
-    bot = Bot(intents=Intents.all(), command_prefix=getenv("_")) # Create Bot
+    bot : Bot = Bot(intents=Intents.all(), command_prefix=getenv("_")) # Create Bot
 
     bot.verbose = False
     if getenv("DEBUG") == "True":
@@ -36,6 +37,8 @@ def main() -> None:
     run(load_cogs.main(bot)) # Load Cogs
     run(load_events.main(bot)) # Load Events
     run(load_groups.main(bot)) # Reload Cogs
+
+    checks.commands(bot.commands)
 
     print_line()
 

@@ -14,6 +14,12 @@ class RPGroup(app_commands.Group):
 
     @app_commands.command(name="add", description="Add a new role pay entry")
     async def add(self, interaction : Interaction, role : str, amount : int) -> None:
+
+        # Check if command is enabled in the server
+        if not tables.CommandConfig.get_or_none(server=interaction.guild_id, command=self.name).enabled:
+            await interaction.response.send_message("Command is disabled in this server! To enable it, contact an admin.")
+            return
+
         # Check for admin permissions
         if not interaction.user.guild_permissions.administrator:
             await interaction.response.send_message("You don't have the required permissions")
@@ -29,6 +35,12 @@ class RPGroup(app_commands.Group):
 
     @app_commands.command(name="remove", description="Remove a role pay entry")
     async def remove(self, interaction : Interaction, role : str) -> None:
+
+        # Check if command is enabled in the server
+        if not tables.CommandConfig.get_or_none(server=interaction.guild_id, command=self.name).enabled:
+            await interaction.response.send_message("Command is disabled in this server! To enable it, contact an admin.")
+            return
+
         # Check for admin permissions
         if not interaction.user.guild_permissions.administrator:
             await interaction.response.send_message("You don't have the required permissions")
@@ -50,6 +62,12 @@ class RPGroup(app_commands.Group):
 
     @app_commands.command(name="list", description="List all role pay entries")
     async def list(self, interaction : Interaction) -> None:
+
+        # Check if command is enabled in the server
+        if not tables.CommandConfig.get_or_none(server=interaction.guild_id, command=self.name).enabled:
+            await interaction.response.send_message("Command is disabled in this server! To enable it, contact an admin.")
+            return
+
         # Check for admin permissions
         if not interaction.user.guild_permissions.administrator:
             await interaction.response.send_message("You don't have the required permissions")
@@ -70,6 +88,12 @@ class RPGroup(app_commands.Group):
 
     @app_commands.command(name="edit", description="Edit a role pay entry")
     async def edit(self, interaction : Interaction, role : str, amount : int) -> None:
+        
+        # Check if command is enabled in the server
+        if not tables.CommandConfig.get_or_none(server=interaction.guild_id, command=self.name).enabled:
+            await interaction.response.send_message("Command is disabled in this server! To enable it, contact an admin.")
+            return
+        
         # Check for admin permissions
         if not interaction.user.guild_permissions.administrator:
             await interaction.response.send_message("You don't have the required permissions")
@@ -94,6 +118,12 @@ class RPGroup(app_commands.Group):
 
     @app_commands.command(name="pay", description="Pay all role pay entries")
     async def pay(self, interaction : Interaction) -> None:
+        
+        # Check if command is enabled in the server
+        if not tables.CommandConfig.get_or_none(server=interaction.guild_id, command=self.name).enabled:
+            await interaction.response.send_message("Command is disabled in this server! To enable it, contact an admin.")
+            return
+        
         # Check for admin permissions
         if not interaction.user.guild_permissions.administrator:
             await interaction.response.send_message("You don't have the required permissions")
