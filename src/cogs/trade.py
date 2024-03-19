@@ -1,15 +1,11 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from dotenv import load_dotenv
-from os import getenv
 from database.tables import Wallet, Currency, CommandConfig, RoleCommandConfig
+import logging
 
-load_dotenv('config.env')
-
-verbose = False
-if getenv("DEBUG") == "True":
-    verbose = True
+# Set Variables
+logger = logging.getLogger('syndra')
 
 class TradeCommand(commands.Cog):
     
@@ -18,7 +14,24 @@ class TradeCommand(commands.Cog):
 
     @app_commands.command(name="trade", description="Create a trade request.")
     async def trade_request(self, interaction: discord.Interaction, reciever: discord.User, amount : int):
+        '''
+        func : trade_request
+        args : interaction : discord.Interaction, reciever : discord.User, amount : int
+        ret  : None
 
+        purpose:
+            This function will create a trade request between two users.
+
+        args:
+            interaction : discord.Interaction : The interaction object from the discord.py library.
+            reciever : discord.User : The user to send the trade request to.
+            amount : int : The amount of currency to send.
+
+        ret:
+            None
+        '''
+
+        # Set the command name
         self.name = "trade"
 
         # Check if command is enabled in the server
@@ -77,6 +90,8 @@ class TradeCommand(commands.Cog):
         reciever_wallet.balance += amount
         wallet.save()
         reciever_wallet.save()
+
+        logger.debug(f"Trade completed: {interaction.user.name} --{amount}{currency.symbol}--> {reciever.name}")
 
         # send verifcation (+ ping both parties)
 

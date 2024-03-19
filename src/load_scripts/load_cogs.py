@@ -1,42 +1,58 @@
 from discord.ext.commands import Bot
 import os
+import logging
+
+# Set Variables
+logger = logging.getLogger('syndra')
 
 async def main(bot : Bot, reload : bool = False) -> None:
-    if bot.verbose:
-        print('Loading cogs...')
+    '''
+    func : main
+    args : bot : Bot
+           reload : bool
+    ret  : None
+
+    purpose:
+        This function will load all cogs in the cogs folder.
+
+    args:
+        bot : Bot : The discord.py bot object.
+        reload : bool : If True, the cogs will be reloaded.
+
+    ret:
+        None
+    '''
+    logger.debug('Loading cogs...')
     ignore = ['load_cogs.py', '__init__.py', '__pycache__'] # Files to ignore
     folder_path = './src/cogs'
 
     files = os.listdir(folder_path) # Get all files in the folder
 
-    if bot.verbose:
-        print('Cog Files:')
-        for file in files:
-            print(f'    - {file}')
+    message = 'Loading Cogs:'
+    for file in files:
+            message += f'    - {file}'
+    logger.debug(message)
 
     for cog in files:
-        if bot.verbose:
-            print(f"Filtering Cog: {cog}")
+        logger.debug(f"Filtering Cog: {cog}")
         if cog in ignore: # Ignore the files in the ignore list
-            if bot.verbose:
-                print(f"Ignoring {cog}")
+            logger.debug(f"Ignoring {cog}")
             continue
         try:
-            if bot.verbose:
-                print(f'Loading {cog}')
+            logger.debug(f'Loading {cog}')
             if reload:
                 await bot.reload_extension(f'cogs.{cog[:-3]}')
             else:
                 await bot.load_extension(f'cogs.{cog[:-3]}') # Load the cog
-            print(f'Loaded {cog}')
+            logger.info(f'Loaded {cog}')
         except Exception as e:
-            print(f'Failed to load {cog}\n{e}')
+            logger.error(f'Failed to load {cog}\n{e}')
             if reload:
                 try:
                     await bot.load_extension(f'cogs.{cog[:-3]}')
                 except Exception as e:
-                    print(f'Failed to reload {cog}\n{e}')
+                    logger.error(f'Failed to reload {cog}\n{e}')
                 else:
-                    print(f'loaded {cog}')
+                    logger.info(f'loaded {cog}')
 
 # Path: src/cogs/load_cogs.py

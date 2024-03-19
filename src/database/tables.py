@@ -40,44 +40,6 @@ class Wallet(BaseModel):
     currency = pw.ForeignKeyField(Currency, backref='wallet')
     balance = pw.FloatField()
 
-"""class Product(BaseModel):
-    '''
-    id : INT : PRIMARY KEY
-    emoji : TEXT
-    owner : INT : FOREIGN KEY
-    name : TEXT
-    description : TEXT
-    price : FLOAT
-    currency : INT : FOREIGN KEY
-    is_active : BOOLEAN
-    stock : INT
-    '''
-    id = pw.AutoField(primary_key=True)
-    emoji = pw.TextField()
-    owner = pw.ForeignKeyField(Wallet, backref='product')
-    name = pw.TextField()
-    description = pw.TextField()
-    price = pw.FloatField()
-    currency = pw.ForeignKeyField(Currency, backref='product')
-    is_active = pw.BooleanField()
-    stock = pw.IntegerField() # -1 for infinite stock"""
-
-"""class Transaction(BaseModel):
-    '''
-    id : INT : PRIMARY KEY
-    sender : INT : FOREIGN KEY
-    receiver : INT : FOREIGN KEY
-    currency : INT : FOREIGN KEY
-    product_id : INT : FOREIGN KEY
-    date : DATETIME
-    '''
-    id = pw.AutoField(primary_key=True)
-    sender = pw.ForeignKeyField(Wallet, backref='transaction')
-    receiver = pw.ForeignKeyField(Wallet, backref='transaction')
-    currency = pw.ForeignKeyField(Currency, backref='transaction')
-    product_id = pw.ForeignKeyField(Product, backref='transaction')
-    date = pw.DateTimeField()"""
-
 class RolePay(BaseModel):
     '''
     id : INT : PRIMARY KEY

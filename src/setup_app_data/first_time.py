@@ -5,6 +5,15 @@ from database.tables import Server, Currency
 from setup_app_data import base1
 
 def modal(bot : commands.bot) -> discord.ui.Modal:
+    """
+    Creates a modal for currency setup.
+
+    Args:
+        bot (commands.bot): The bot instance.
+
+    Returns:
+        discord.ui.Modal: The created modal.
+    """
     class SetupModal(discord.ui.Modal):
         def __init__(self):
             super().__init__(timeout=None, title="Currency Setup")
@@ -16,6 +25,15 @@ def modal(bot : commands.bot) -> discord.ui.Modal:
             self.add_item(self.Curr_Symbol)
 
         async def on_submit(self, interaction: discord.Interaction) -> None:
+            """
+            Event handler for when the modal is submitted.
+
+            Args:
+                interaction (discord.Interaction): The interaction object.
+
+            Returns:
+                None
+            """
             currency_name = self.Curr_Name.value
             currency_value = self.Curr_Value.value
             currency_symbol = self.Curr_Symbol.value

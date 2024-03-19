@@ -1,11 +1,19 @@
 # Main File
 
+import logging
+from rich.logging import RichHandler
 import checks
 import bot
 import ease
+from discord.utils import setup_logging
+
+# Logging configuration
+logger = setup_logging(level=logging.INFO)
+logger = logging.getLogger('syndra')
+
 
 if __name__ == '__main__':
-    print('Running the Syndra Project! If you need any assistance, please contact the developer or create an issue on the GitHub repository. Thank you! \n ')
+    logger.info("Starting the Syndra Application! If you have any issues, please report them to the developers.")
     
     ease.print_line()
 

@@ -1,32 +1,32 @@
 from discord.ext.commands import Bot
 import os
+import logging
+
+# Set Variables
+logger = logging.getLogger('syndra')
 
 async def main(bot : Bot) -> None:
-    if bot.verbose:
-        print('Loading events...')
+    logger.info('Loading events...')
     ignore = ['load_events.py', '__init__.py', '__pycache__'] # Files to ignore
     folder_path = './src/events'
 
     files = os.listdir(folder_path) # Get all files in the folder
 
-    if bot.verbose:
-        print('Event Files:')
-        for file in files:
-            print(f'    - {file}')
+    message = 'Loading Events:'
+    for file in files:
+        message += f'    - {file}'
+    logger.debug(message)
 
     for cog in files:
-        if bot.verbose:
-            print(f"Filtering Cog: {cog}")
+        logger.debug(f"Filtering Cog: {cog}")
         if cog in ignore: # Ignore the files in the ignore list
-            if bot.verbose:
-                print(f"Ignoring {cog}")
+            logger.debug(f"Ignoring {cog}")
             continue
         try:
-            if bot.verbose:
-                print(f'Loading {cog}')
+            logger.debug(f'Loading {cog}')
             await bot.load_extension(f'events.{cog[:-3]}') # Load the cog
-            print(f'Loaded {cog}')
+            logger.info(f'Loaded {cog}')
         except Exception as e:
-            print(f'Failed to load {cog}\n{e}')
+            logger.error(f'Failed to load {cog}\n{e}')
 
 # Path: src/events/load_events.py
