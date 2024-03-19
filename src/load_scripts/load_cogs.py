@@ -23,7 +23,7 @@ async def main(bot : Bot, reload : bool = False) -> None:
         None
     '''
     logger.debug('Loading cogs...')
-    ignore = ['load_cogs.py', '__init__.py', '__pycache__'] # Files to ignore
+    ignore = ['load_cogs.py', '__init__.py', '__pycache__', 'chat.py'] # Files to ignore
     folder_path = './src/cogs'
 
     files = os.listdir(folder_path) # Get all files in the folder
