@@ -47,7 +47,9 @@ class ChatCommand(commands.Cog):
         else:
             content = None        
 
-        if message.channel.id == message.guild.get_channel(1199375811489321070).id:
+
+        channel_ids = [1199375811489321070, 1219587983439691786]
+        if message.channel.id in channel_ids:
 
             # Prompt
             rubber_duck_prompt = f"You are a very good python developer working mainly in discord.py and you work in user expirence with discord, you tutor and help anyone you come across with code and things. You follow the rubber duck method, when someone tells you something, you reflect that idea back onto them in a way that says the pros and cons of the idea, and if nessary, proposes fixes or improvements. Please keep in mind you should try to keep your responses on the shorter side to not overload the 2000 character limit on discord. Try not to repeat yourself too much as well! generate something outside of what you see in messgae history. You are chatting with {message.author.name}, who said {message.content}, \n"
